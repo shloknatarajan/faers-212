@@ -26,3 +26,16 @@ Current Methods (add approaches here):
 Rather than relying on researchers to spot trends and study them, the pipeline should be able to automatically run on drugs/adverse events within the database and extract insights. This builds upon research trends. This can be via brute force investigation of the databse or via some intelligent search, potentially drawing from current ideas surrounding [AI Research Scientists](https://sakana.ai/ai-scientist/)
 
 ## Project Timeline
+
+## Setting up Environment 
+To create the conda environment locally, run:
+
+conda env create -f environment.yml
+### To add a new dependency:
+
+conda install (your package)
+Make sure to add the new dependency to the environment.yml file!
+
+### To update your local environment after someone else has added a dependency:
+
+conda env update --file environment.yml --prune

@@ -1,4 +1,4 @@
-name: cs229project
+name: faers-env
 channels:
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/r
@@ -9,4 +9,11 @@ dependencies:
   - scikit-learn
   - matplotlib
   - pandas
-prefix: /Users/poojanpandya/miniconda3/envs/cs229project
+    - python=3.10
+  - jupyter
+  - requests
+  - duckdb
+  - tqdm
+      - openfda
+      - rxnorm
+

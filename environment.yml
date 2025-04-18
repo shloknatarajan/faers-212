@@ -9,7 +9,6 @@ dependencies:
   - scikit-learn
   - matplotlib
   - pandas
-    - python=3.10
   - jupyter
   - requests
   - duckdb

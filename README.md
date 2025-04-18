@@ -31,6 +31,7 @@ Rather than relying on researchers to spot trends and study them, the pipeline s
 To create the conda environment locally, save environment.yml in the faers-cohort-generation folder. Then, run:
 
 conda env create -f environment.yml
+
 conda activate faers-env
 
 ### To add a new dependency:

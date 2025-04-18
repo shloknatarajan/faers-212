@@ -10,9 +10,5 @@ dependencies:
   - matplotlib
   - pandas
   - jupyter
-  - requests
-  - duckdb
-  - tqdm
-      - openfda
-      - rxnorm
+
 

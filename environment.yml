@@ -1,0 +1,12 @@
+name: cs229project
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.10
+  - numpy
+  - pytorch
+  - scikit-learn
+  - matplotlib
+  - pandas
+prefix: /Users/poojanpandya/miniconda3/envs/cs229project

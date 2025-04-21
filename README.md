@@ -23,6 +23,5 @@ Current Methods (add approaches here):
 - Exclude non-primary suspect drugs
 
 ### Automatic Querying of Pipeline
-Rather than relying on researchers to spot trends and study them, the pipeline should be able to automatically run on drugs/adverse events within the database and extract insights. This builds upon research trends. This can be via brute force investigation of the databse or via some intelligent search, potentially drawing from current ideas surrounding [AI Research Scientists](https://sakana.ai/ai-scientist/)
-
-## Project Timeline
+Rather than relying on researchers to spot trends and study them, the pipeline should be able to automatically run on drugs/adverse events within the database and extract insights. This builds upon research trends. This can be via brute force investigation of the databse or via some intelligent search, potentially drawing from current ideas surrounding [AI Research Scientists](https://sakana.ai/ai-scientist/).
+Another route could be centered around creating a frontend/dashboards for researchers to use but I think that's potentially less novel, still requires manual work by researchers, and may already exist internally within the FDA.

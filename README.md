@@ -25,3 +25,22 @@ Current Methods (add approaches here):
 ### Automatic Querying of Pipeline
 Rather than relying on researchers to spot trends and study them, the pipeline should be able to automatically run on drugs/adverse events within the database and extract insights. This builds upon research trends. This can be via brute force investigation of the databse or via some intelligent search, potentially drawing from current ideas surrounding [AI Research Scientists](https://sakana.ai/ai-scientist/).
 Another route could be centered around creating a frontend/dashboards for researchers to use but I think that's potentially less novel, still requires manual work by researchers, and may already exist internally within the FDA.
+Rather than relying on researchers to spot trends and study them, the pipeline should be able to automatically run on drugs/adverse events within the database and extract insights. This builds upon research trends. This can be via brute force investigation of the databse or via some intelligent search, potentially drawing from current ideas surrounding [AI Research Scientists](https://sakana.ai/ai-scientist/)
+
+## Setting up Environment 
+We porvide a conda environment.yml file as well as a pixi toml
+
+To create the conda environment locally, save environment.yml in the faers-cohort-generation folder. Then, run:
+
+conda env create -f environment.yml
+
+conda activate faers-env
+
+### To add a new dependency:
+
+conda install (your package)
+Make sure to add the new dependency to the environment.yml file!
+
+### To update your local environment after someone else has added a dependency:
+
+conda env update --file environment.yml --prune

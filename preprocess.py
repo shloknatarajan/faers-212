@@ -1,5 +1,8 @@
 import pandas as pd
+import numpy as np
+import re
 
+base_path = ''
 drug = pd.read_csv(base_path + 'DRUG24Q4.txt', sep='$')
 reac = pd.read_csv(base_path + 'REAC24Q4.txt', sep='$')
 ther = pd.read_csv(base_path + 'THER24Q4.txt', sep='$')
@@ -33,7 +36,7 @@ demo['age'] = np.where(demo['age_cod'] == 'DY', demo['age'] * 1 / 365, demo['age
 demo['age'] = np.where(demo['age_cod'] == 'HR', demo['age'] * 1 / 8760, demo['age'])  # hour
 demo = demo.drop(['age_cod'], axis=1)
 
-demo = demo.sort_values('caseversion', ascending=False).drop_duplicates(subset='caseid', keep='last')
+demo_latest = demo.sort_values('caseversion', ascending=False).drop_duplicates(subset='caseid', keep='last')
 
 drug_merged = pd.merge(drug, demo_latest, on='primaryid', how='left')
 
@@ -103,8 +106,8 @@ ps_filtered = ps_comparison[
 ]
 ps_filtered
 
-asp_num = aspirin_ids.shape[0]
-non_num = non_aspirin_ids.shape[0]
+asp_num = aspirin_ids.shape[0] # query_drugs_id?
+non_num = non_aspirin_ids.shape[0] # non_query_drugs_id?
 ae_filtered['No_AE_aspirin'] = asp_num - ae_filtered['Count_query_drug']
 ae_filtered['No_AE_non_aspirin'] = non_num - ae_filtered['Count_non_aspirin']
 ae_filtered

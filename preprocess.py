@@ -106,25 +106,24 @@ ps_filtered = ps_comparison[
 ]
 ps_filtered
 
-asp_num = aspirin_ids.shape[0] # query_drugs_id?
-non_num = non_aspirin_ids.shape[0] # non_query_drugs_id?
-ae_filtered['No_AE_aspirin'] = asp_num - ae_filtered['Count_query_drug']
-ae_filtered['No_AE_non_aspirin'] = non_num - ae_filtered['Count_non_aspirin']
+query_num = query_drug_ids.shape[0]
+non_num = non_query_ids.shape[0]
+ae_filtered['No_AE_query_drug'] = query_num - ae_filtered['Count_query_drug']
+ae_filtered['No_AE_non_query_drug'] = non_num - ae_filtered['Count_non_query_drug']
 ae_filtered
 
 ps_num = ps_ids.shape[0]
 ps_non_num = non_ps_ids.shape[0]
-ps_filtered['No_AE_aspirin'] = ps_num - ps_filtered['Count_aspirin']
-ps_filtered['No_AE_non_aspirin'] = ps_non_num - ps_filtered['Count_non_aspirin']
+ps_filtered['No_AE_query_drug'] = ps_num - ps_filtered['Count_query_drug']
+ps_filtered['No_AE_non_query_drug'] = ps_non_num - ps_filtered['Count_non_query_drug']
 ps_filtered
 
 from scipy.stats import chi2_contingency
 p_values = []
 
 for _, row in ae_filtered.iterrows():
-    table = [[row['Count_aspirin'], row['No_AE_aspirin']],
-             [row['Count_non_aspirin'], row['No_AE_non_aspirin']]]
-
+    table = [[row['Count_query_drug'], row['No_AE_query_drug']],
+             [row['Count_non_query_drug'], row['No_AE_non_query_drug']]]
     _, p, _, _ = chi2_contingency(table)
     p_values.append(p)
 
@@ -134,8 +133,8 @@ ae_filtered['p_value'] = p_values
 p_values = []
 
 for _, row in ps_filtered.iterrows():
-    table = [[row['Count_aspirin'], row['No_AE_aspirin']],
-             [row['Count_non_aspirin'], row['No_AE_non_aspirin']]]
+    table = [[row['Count_query_drug'], row['No_AE_query_drug']],
+             [row['Count_non_query_drug'], row['No_AE_non_query_drug']]]
 
     _, p, _, _ = chi2_contingency(table)
     p_values.append(p)

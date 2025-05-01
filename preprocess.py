@@ -131,33 +131,10 @@ ps_filtered['No_AE_query_drug'] = ps_num - ps_filtered['Count_query_drug']
 ps_filtered['No_AE_non_query_drug'] = ps_non_num - ps_filtered['Count_non_query_drug']
 ps_filtered
 
-# original contingency table construction with chi-squared p-value 
-from scipy.stats import chi2_contingency
-p_values = []
-
-for _, row in ae_filtered.iterrows():
-    table = [[row['Count_query_drug'], row['No_AE_query_drug']],
-             [row['Count_non_query_drug'], row['No_AE_non_query_drug']]]
-    _, p, _, _ = chi2_contingency(table)
-    p_values.append(p)
-
-ae_filtered['p_value'] = p_values
-
-
-p_values = []
-
-for _, row in ps_filtered.iterrows():
-    table = [[row['Count_query_drug'], row['No_AE_query_drug']],
-             [row['Count_non_query_drug'], row['No_AE_non_query_drug']]]
-
-    _, p, _, _ = chi2_contingency(table)
-    p_values.append(p)
-
-ps_filtered['p_value'] = p_values
-
 from scipy.stats import chi2_contingency
 import numpy as np
 
+# Function to compute Odds Ratio (OR) and Confidence Interval (CI)
 def compute_or_and_ci(a, b, c, d):
     # Add 0.5 to avoid zero counts
     a, b, c, d = a + 0.5, b + 0.5, c + 0.5, d + 0.5
@@ -175,11 +152,33 @@ def compute_or_and_ci(a, b, c, d):
 
     return or_val, ci_low, ci_high
 
+# Function to compute Proportional Reporting Ratio (PRR), Standard Error (SE), and Confidence Interval (CI)
+def compute_prr_and_ci(a, b, c, d):
+    # Proportional Reporting Ratio (PRR)
+    prr = (a / (a + b)) / (c / (c + d))
+
+    # Standard Error (SE)
+    se = np.sqrt(1/a + 1/c - 1/(a + b) - 1/(c + d))
+
+    # Confidence Interval for PRR
+    ln_prr = np.log(prr)
+    ci_low = np.exp(ln_prr - 1.96 * se)
+    ci_high = np.exp(ln_prr + 1.96 * se)
+
+    return prr, se, ci_low, ci_high
+
+
+# Function to add statistics (OR and PRR) to the DataFrame
 def add_stats(df):
     p_values = []
     odds_ratios = []
-    ci_lowers = []
-    ci_uppers = []
+    ci_lowers_or = []
+    ci_uppers_or = []
+    prr_values = []
+    se_values_prr = []
+    ci_lowers_prr = []
+    ci_uppers_prr = []
+    signals = []
 
     for _, row in df.iterrows():
         a = row['Count_query_drug']
@@ -187,25 +186,44 @@ def add_stats(df):
         c = row['Count_non_query_drug']
         d = row['No_AE_non_query_drug']
 
-        # Chi-squared test
+        # Chi-squared test for independence
         _, p, _, _ = chi2_contingency([[a, b], [c, d]])
         p_values.append(p)
 
-        # Odds ratio and confidence interval
-        or_val, ci_low, ci_high = compute_or_and_ci(a, b, c, d)
+        # Odds Ratio (OR) and Confidence Interval (CI) for OR
+        or_val, ci_low_or, ci_high_or = compute_or_and_ci(a, b, c, d)
         odds_ratios.append(or_val)
-        ci_lowers.append(ci_low)
-        ci_uppers.append(ci_high)
+        ci_lowers_or.append(ci_low_or)
+        ci_uppers_or.append(ci_high_or)
 
+        # Proportional Reporting Ratio (PRR), SE, and Confidence Interval (CI) for PRR
+        prr, se_prr, ci_low_prr, ci_high_prr = compute_prr_and_ci(a, b, c, d)
+        prr_values.append(prr)
+        se_values_prr.append(se_prr)
+        ci_lowers_prr.append(ci_low_prr)
+        ci_uppers_prr.append(ci_high_prr)
+
+        # Signal criteria for PRR: PRR ≥ 2, A ≥ 3, and CI lower bound > 1
+        signal = (prr >= 2) and (a >= 3) and (ci_low_prr > 1)
+        signals.append(signal)
+
+    # Add new columns for OR and PRR statistics
     df['p_value'] = p_values
     df['odds_ratio'] = odds_ratios
-    df['ci_lower'] = ci_lowers
-    df['ci_upper'] = ci_uppers
+    df['ci_lower_or'] = ci_lowers_or
+    df['ci_upper_or'] = ci_uppers_or
+    df['prr'] = prr_values
+    df['se_prr'] = se_values_prr
+    df['ci_lower_prr'] = ci_lowers_prr
+    df['ci_upper_prr'] = ci_uppers_prr
+    df['signal'] = signals  # Signal column indicating significant PRR
     return df
 
-# Apply to both DataFrames
 ae_filtered = add_stats(ae_filtered)
-ps_filtered = add_stats(ps_filtered)
+ps_filtered = add_stats(ps_filtered) 
+
+# Display the results
+print(ae_filtered.head(10))
 
 
 from statsmodels.stats.multitest import multipletests

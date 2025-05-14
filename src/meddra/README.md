@@ -10,7 +10,12 @@ Be able to search the FAERS database for events related to the levels of MedDRA 
 3. High Level Term (HLT) ex. "Left Ventricular Failures"
 4. Preferred Term (PT) ex. "Congestive Heart Failure"
 5. Lowest Level Term (LLT) ex. "Cardiac Decompensation"
-Each AE report should contain several MedDRA terms
+Each AE report should contain several MedDRA terms. Each term is a member of the term above it
+
+### Convert MeDRA Subterm to System Organ Class
+Take one of the lower classes and return one of the levels above (System Organ Class) is needed
 
 ### Steps
 1. Import a FAERS dataset
+2. Merge into one
+3. 

@@ -11,6 +11,14 @@
             "cwd": "${workspaceFolder}",
             "module": "src.load_data.load_report",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Search MedDRA",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "module": "src.meddra.search",
+            "console": "integratedTerminal"
         }
     ]
 }

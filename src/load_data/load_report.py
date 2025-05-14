@@ -1,10 +1,18 @@
 import pandas as pd
 import os
 from loguru import logger
+from pathlib import Path
+"""
+Helper functions for loading FAERS reports
+TODO: 
+1. Fix the matching between 25Q1 and 2025Q1. Let's make everything 2025Q1
+2. Preprocess and save to pickle files containing pandas dataframes
+"""
 
 SUPPORTED_REPORT_QUARTERS = [
-    '2025Q1',
+    '25Q1',
 ]
+
 
 def download_reports(report_quarter):
     if report_quarter not in SUPPORTED_REPORT_QUARTERS:
@@ -101,3 +109,33 @@ def merge_reports(report_quarter):
     # === Final Output ===
     logger.info(f"Final merged shape: {merged.shape}")
     return merged
+
+def get_report_path(report_quarter: str) -> Path:
+    """Return the path to a data file in the module. Helper method for loading new data"""
+    module_dir = Path(os.path.dirname(__file__))
+    
+    return module_dir / "saved_data" / report_quarter / f"MERGED{report_quarter}.csv"
+
+def load_report(report_quarter: str) -> pd.DataFrame:
+    """
+    Load a report from the given quarter
+    """
+    if report_quarter not in SUPPORTED_REPORT_QUARTERS:
+        raise ValueError(f"Report quarter {report_quarter} is not supported. Supported report quarters are: {SUPPORTED_REPORT_QUARTERS}")
+    
+    # Get file path to report
+    report_file = get_report_path(report_quarter)
+    if not report_file.exists():
+        raise FileNotFoundError(f"Report file {report_file} not found")
+    
+    # Load the report
+    report = pd.read_csv(report_file, sep=',', low_memory=False)
+    logger.info(f"Loaded report {report_quarter} with shape {report.shape}")
+
+    # Preprocess the report
+    try:
+        report['pt'] = report['pt'].fillna('').apply(lambda x: [term.strip() for term in x.split(';') if term.strip()])
+    except Exception as e:
+        logger.error(f"Error preprocessing report {report_quarter}: {e}")
+    
+    return report

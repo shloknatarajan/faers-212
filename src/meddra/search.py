@@ -41,6 +41,7 @@ def search_meddra(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFr
     Search for MedDRA terms in a FAERS report
     """
     # Get all rows where the column 'pt' contains any of the preferred terms
+    logger.info(f"Searching for {preferred_terms} in {report.shape[0]} rows")
     matching_rows = filter_by_all_terms(report, preferred_terms)
 
     return matching_rows

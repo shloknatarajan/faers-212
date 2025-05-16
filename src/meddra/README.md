@@ -17,5 +17,6 @@ Take one of the lower classes and return one of the levels above (System Organ C
 
 ### Steps
 1. Import a FAERS dataset
-2. Merge into one
-3. 
+2. Merge into one dataset
+3. Get the system organ class from a subcategory
+4. Search the merged dataset for MedDRA terms

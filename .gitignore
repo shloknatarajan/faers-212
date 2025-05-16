@@ -2,3 +2,15 @@
 # pixi environments
 .pixi
 *.egg-info
+
+# Data Files
+src/meddra/MedDRA_28_0_ENglish/
+
+# pycache
+__pycache__
+
+# FAERS Data
+**/saved_data/
+
+# Misc
+**/.DS_Store

@@ -2,6 +2,7 @@
 Search for MedDRA terms in a FAERS report
 """
 import pandas as pd
+import pickle
 from typing import List
 from src.load_data.load_report import load_report
 from loguru import logger
@@ -47,10 +48,30 @@ def search_meddra(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFr
     return matching_rows
 
 
-def get_system_organ_class(meddra_term: str) -> str:
+def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
     """
-    Get the system organ class for a MedDRA term
+    TODO: Maybe change this from code to term
+    Get the system organ class for MedDRA LLT codes. List allows for batches of term processing.
+    Args:
+        meddra_terms: List of MedDRA LLT codes
+    Returns:
+        List of system organ classes
     """
+    with open("llt_to_soc.pkl", "rb") as f:
+        llt_to_soc = pickle.load(f)
+    return [llt_to_soc[term] for term in meddra_terms]
+
+
+def search_system_organ_classes(report: pd.DataFrame, system_organ_classes: List[str]) -> pd.DataFrame:
+    """
+    Search by MedDRA system organ classes
+    Args:
+        report: FAERS report
+        system_organ_classes: List of system organ classes by 
+    Returns:
+        DataFrame of rows where the system organ class is in the list
+    """
+    logger.error("Not implemented")
     pass
 
 if __name__ == "__main__":

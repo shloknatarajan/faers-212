@@ -10,13 +10,14 @@ import shutil
 import warnings
 import requests
 from tqdm import tqdm
-from io import BytesIO
+from io import BytesIO  
 from zipfile import ZipFile
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from loguru import logger
 from typing import List
 import argparse
+from pathlib import Path
 
 # this script will find target in this list pages.
 faers_download_page = ["https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"]
@@ -63,20 +64,20 @@ def flatten_directory(directory_path):
         # Move the file
         if source_path != dest_path:  # Don't try to move a file to itself
             shutil.move(source_path, dest_path)
-            print(f"Moved: {source_path} -> {dest_path}")
+            logger.debug(f"Moved: {source_path} -> {dest_path}")
     
     # Remove all subdirectories (bottom-up to ensure they're empty)
     for root, dirs, files in os.walk(directory_path, topdown=False):
         if root != directory_path:  # Don't remove the top-level directory
             try:
                 os.rmdir(root)
-                print(f"Removed directory: {root}")
+                logger.debug(f"Removed directory: {root}")
             except OSError as e:
-                print(f"Error removing directory {root}: {e}")
+                logger.error(f"Error removing directory {root}: {e}")
                 
 class FAERSDownloader:
     def __init__(self, data_dir: str = "data/raw_faers"):
-        self.data_dir = data_dir
+        self.data_dir = Path(data_dir)
         self.file_urls = self.get_file_urls()
 
     def get_file_urls(self) -> dict[str, str]:
@@ -212,13 +213,15 @@ def list_available_quarters():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download specific FAERS data quarters.')
     parser.add_argument('--quarters', nargs='+', type=str, help='List of quarters to download, or "all" to download all (e.g., 2025Q1 2025Q2 or all)')
+    parser.add_argument('--overwrite', action='store_true', help='Overwrite existing data')
+    parser.add_argument('--remove_pdfs', action='store_true', help='Remove pdf files')
     args = parser.parse_args()
 
     if args.quarters:
         if len(args.quarters) == 1 and args.quarters[0].lower() == 'all':
-            download_all_quarters()
+            download_all_quarters(overwrite=args.overwrite, remove_pdfs=args.remove_pdfs)
         else:
-            download_quarters(args.quarters)
+            download_quarters(args.quarters, overwrite=args.overwrite, remove_pdfs=args.remove_pdfs)
     else:
         print('Please specify one or more quarters to download using --quarters (e.g., --quarters 2025Q1 2025Q2 or download all quarters with --quarters all)')
 

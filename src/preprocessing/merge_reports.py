@@ -2,77 +2,44 @@ import os
 from loguru import logger
 import pandas as pd
 import argparse
-
+from pathlib import Path
 """
 Merging the dataframes from raw_faers/{quarter} into a single dataframe.
 
 This will eventually need to be moved into a class / preprocessing pipeline 
 as the number of prepreocessing steps grows.
+
+Need to add:
+- deduplicatin
+- drug normalization
 """
+from src.utils import get_raw_quarters, get_processed_quarters, format_quarter
 
-def get_supported_quarters():
-    """
-    Checks the quarters in data/raw_faers and returns a list of the supported quarters.
-    """
-    supported_quarters = []
-    for folder in os.listdir("data/raw_faers"):
-        if os.path.isdir(os.path.join("data/raw_faers", folder)):
-            supported_quarters.append(folder)
-    return supported_quarters
-
-def get_processed_quarters():
-    """
-    Checks the quarters in data/processed_faers and returns a list of the supported quarters.
-    """
-    supported_quarters = []
-    for folder in os.listdir("data/processed_faers"):
-        if os.path.isdir(os.path.join("data/processed_faers", folder)):
-            supported_quarters.append(folder)
-    return supported_quarters
-
-def format_quarter(quarter_string):
-    """
-    Convert a quarter string from format 'YYYYQN' to 'YYQN'
-    
-    Args:
-        quarter_string (str): A string in the format 'YYYYQN' (e.g. '2025Q1')
-        
-    Returns:
-        str: The converted string in format 'YYQN' (e.g. '25Q1')
-    """
-    # Check if input follows expected format
-    if len(quarter_string) == 6 and quarter_string[4] == 'Q' and quarter_string[5] in '1234':
-        # Extract the last two digits of the year and append the quarter part
-        return quarter_string[2:]
-    else:
-        # Return original string or raise an error if format doesn't match
-        raise ValueError(f"Input '{quarter_string}' is not in the expected format 'YYYYQN'")
-
-def merge_reports(report_quarter, overwrite=False):
-    if report_quarter not in get_supported_quarters():
-        raise ValueError(f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_supported_quarters()}")
+def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
+    if report_quarter not in get_raw_quarters():
+        raise ValueError(f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}")
     if report_quarter in get_processed_quarters() and not overwrite:
         logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
         return
 
     # Load the report data
     # DEMO
-    demo_file = f"data/raw_faers/{report_quarter}/DEMO{format_quarter(report_quarter)}.txt"
+    demo_file = Path("data/raw_faers") / report_quarter / f"DEMO{format_quarter(report_quarter)}.txt"
 
     # DRUG
-    drug_file = f"data/raw_faers/{report_quarter}/DRUG{format_quarter(report_quarter)}.txt"
+    drug_file = Path("data/raw_faers") / report_quarter / f"DRUG{format_quarter(report_quarter)}.txt"
 
     # OUTCOME
-    outcome_file = f"data/raw_faers/{report_quarter}/OUTC{format_quarter(report_quarter)}.txt"
+    outcome_file = Path("data/raw_faers") / report_quarter / f"OUTC{format_quarter(report_quarter)}.txt"
 
     # REACTION
-    reaction_file = f"data/raw_faers/{report_quarter}/REAC{format_quarter(report_quarter)}.txt"
+    reaction_file = Path("data/raw_faers") / report_quarter / f"REAC{format_quarter(report_quarter)}.txt"
 
     # RPSR
-    rpsr_file = f"data/raw_faers/{report_quarter}/RPSR{format_quarter(report_quarter)}.txt"
+    rpsr_file = Path("data/raw_faers") / report_quarter / f"RPSR{format_quarter(report_quarter)}.txt"
 
     # THERAPY
-    therapy_file = f"data/raw_faers/{report_quarter}/THER{format_quarter(report_quarter)}.txt"
+    therapy_file = Path("data/raw_faers") / report_quarter / f"THER{format_quarter(report_quarter)}.txt"
 
     logger.info(f"Loading data from {report_quarter}")
     # === Load Data ===

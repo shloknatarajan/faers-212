@@ -10,7 +10,8 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "module": "src.load_data.load_report",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["--quarter", "2024Q1"]
         },
         {
             "name": "Search MedDRA",
@@ -26,7 +27,8 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "module": "src.download_data.faers_downloader",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["--quarters", "2024Q1"]
         },
         {
             "name": "Merge Reports",

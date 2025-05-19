@@ -27,6 +27,15 @@
             "cwd": "${workspaceFolder}",
             "module": "src.download_data.faers_downloader",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Merge Reports",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "module": "src.preprocessing.merge_reports",
+            "console": "integratedTerminal",
+            "args": ["--quarter", "2024Q1"]
         }
     ]
 }

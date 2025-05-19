@@ -7,8 +7,9 @@ Current research methods follow relatively similar set of steps in order to crea
 - ROR (Reporting Odds Ratio)
 - PhiCorr (Phi Coefficient)
 - IC (Information Component)
-- Empirical Bayes Geometric Mean (EBGM)
 - GLASSO (Graphical LASSO)
+- Empirical Bayes Geometric Mean (EBGM) / MGPS
+    - This is a more long-term goal since it requires running against all (Drug, SE) pairs
 
 The general process is as follows:
 1. Cohort generation: Perform data cleaning / processing to apply your desired drug or adverse event label to records in the database. You may need to remove or add labels to records as the records are not necessarily perfect

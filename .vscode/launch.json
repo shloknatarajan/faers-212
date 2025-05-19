@@ -19,6 +19,14 @@
             "cwd": "${workspaceFolder}",
             "module": "src.meddra.search",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Download FAERS Data",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "faers_downloader.py",
+            "console": "integratedTerminal"
         }
     ]
 }

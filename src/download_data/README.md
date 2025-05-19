@@ -6,12 +6,12 @@ Scripts to download the needed raw data
 ## Progress Tracker
 | Task | Status |
 | --- | --- |
-| Download FAERS data (single) |  |
-| Download FAERS data (full)   |  |
+| Download FAERS data |  |
+| Download FAERS data   |  |
 | Create RxNorm plan | |
 
 Note: Can't download MedDRA programatically. Needs to be downloaded and unzipped separately.
 
 
 
-
+## Usage

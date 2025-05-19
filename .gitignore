@@ -11,6 +11,9 @@ __pycache__
 
 # FAERS Data
 **/saved_data/
+data/raw_faers/
+data/processed_faers/
 
 # Misc
 **/.DS_Store
+

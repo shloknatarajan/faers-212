@@ -1,7 +1,7 @@
-# coding: utf-8
-# author: Jing Li
-# date: 2019/04/01
-
+"""
+Download FAERS data from the FDA website.
+Must be run from the root directory of the project.
+"""
 import os
 import re
 import lxml
@@ -12,16 +12,14 @@ import requests
 from tqdm import tqdm
 from io import BytesIO
 from zipfile import ZipFile
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from loguru import logger
+from typing import List
+import argparse
 
 # this script will find target in this list pages.
-target_page = ["https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"]
-
-# local directory to save files.
-data_dir = "data/raw_faers"
+faers_download_page = ["https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"]
 
 # ignore warnings
 warnings.filterwarnings('ignore')
@@ -88,7 +86,7 @@ class FAERSDownloader:
         """
         logger.info("Fetching web urls")
         files = {}
-        for page_url in target_page:
+        for page_url in faers_download_page:
             try:
                 request = urlopen(page_url)
                 page_bs = BeautifulSoup(request, "lxml")
@@ -185,14 +183,42 @@ class FAERSDownloader:
                 if file.endswith('.pdf'):
                     os.remove(os.path.join(quarter_dir, file))
             logger.debug(f"Removed all pdf files")
-        logger.info(f"Cleaning {quarter} complete")
 
-def main():
-    # get faers data file's url and download them.
+def download_all_quarters(overwrite: bool = False, remove_pdfs: bool = True):
+    """
+    Download all quarters of FAERS data
+    """
     downloader = FAERSDownloader('data/raw_faers')
-    downloader.download_quarter('2023Q1', overwrite=False)
-    downloader.clean_files('2023Q1', remove_pdfs=True)
-    
+    for quarter in downloader.file_urls.keys():
+        downloader.download_quarter(quarter, overwrite=overwrite)
+        downloader.clean_files(quarter, remove_pdfs=remove_pdfs)
+
+def download_quarters(quarters: List[str], overwrite: bool = False, remove_pdfs: bool = True):
+    """
+    Download a single quarter of FAERS data
+    """
+    downloader = FAERSDownloader('data/raw_faers')
+    for quarter in quarters:
+        downloader.download_quarter(quarter, overwrite=overwrite)
+        downloader.clean_files(quarter, remove_pdfs=remove_pdfs)
+
+def list_available_quarters():
+    """
+    List all available quarters of FAERS data
+    """
+    downloader = FAERSDownloader('data/raw_faers')
+    return list(downloader.file_urls.keys())
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Download specific FAERS data quarters.')
+    parser.add_argument('--quarters', nargs='+', type=str, help='List of quarters to download, or "all" to download all (e.g., 2025Q1 2025Q2 or all)')
+    args = parser.parse_args()
+
+    if args.quarters:
+        if len(args.quarters) == 1 and args.quarters[0].lower() == 'all':
+            download_all_quarters()
+        else:
+            download_quarters(args.quarters)
+    else:
+        print('Please specify one or more quarters to download using --quarters (e.g., --quarters 2025Q1 2025Q2 or download all quarters with --quarters all)')
+

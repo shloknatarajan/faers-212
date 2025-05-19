@@ -25,7 +25,7 @@
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "faers_downloader.py",
+            "module": "src.download_data.faers_downloader",
             "console": "integratedTerminal"
         }
     ]

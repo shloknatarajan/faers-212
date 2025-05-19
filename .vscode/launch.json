@@ -11,7 +11,7 @@
             "cwd": "${workspaceFolder}",
             "module": "src.load_data.load_report",
             "console": "integratedTerminal",
-            "args": ["--quarter", "2024Q1"]
+            "args": ["--quarters", "2024Q1", "2025Q1"]
         },
         {
             "name": "Search MedDRA",

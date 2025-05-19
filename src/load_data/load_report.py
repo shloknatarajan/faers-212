@@ -3,7 +3,7 @@ import os
 from loguru import logger
 from pathlib import Path
 import argparse
-
+from typing import List
 from src.utils import get_processed_quarters, format_quarter
 
 def get_report_path(report_quarter: str) -> Path:
@@ -36,9 +36,17 @@ def load_report(report_quarter: str) -> pd.DataFrame:
     
     return report
 
+def load_reports(quarters: List[str]) -> pd.DataFrame:
+    """
+    Load a report from the given quarter
+    """
+    if len(quarters) == 1 and quarters[0] == "all":
+        quarters = get_processed_quarters()
+    return pd.concat([load_report(quarter) for quarter in quarters])
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--quarter", type=str, required=True)
+    parser.add_argument("--quarters", type=str, nargs="+", required=True)
     args = parser.parse_args()
-    report = load_report(args.quarter)
+    report = load_reports(args.quarters)
     print(report.head())

@@ -10,7 +10,8 @@
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "module": "src.load_data.load_report",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["--quarter", "2024Q1"]
         },
         {
             "name": "Search MedDRA",
@@ -19,6 +20,24 @@
             "cwd": "${workspaceFolder}",
             "module": "src.meddra.search",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Download FAERS Data",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "module": "src.download_data.faers_downloader",
+            "console": "integratedTerminal",
+            "args": ["--quarters", "2024Q1"]
+        },
+        {
+            "name": "Merge Reports",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "module": "src.preprocessing.merge_reports",
+            "console": "integratedTerminal",
+            "args": ["--quarter", "2024Q1"]
         }
     ]
 }

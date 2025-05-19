@@ -13,6 +13,16 @@ def get_supported_quarters():
             supported_quarters.append(folder)
     return supported_quarters
 
+def get_processed_quarters():
+    """
+    Checks the quarters in data/processed_faers and returns a list of the supported quarters.
+    """
+    supported_quarters = []
+    for folder in os.listdir("data/processed_faers"):
+        if os.path.isdir(os.path.join("data/processed_faers", folder)):
+            supported_quarters.append(folder)
+    return supported_quarters
+
 def format_quarter(quarter_string):
     """
     Convert a quarter string from format 'YYYYQN' to 'YYQN'
@@ -31,10 +41,13 @@ def format_quarter(quarter_string):
         # Return original string or raise an error if format doesn't match
         raise ValueError(f"Input '{quarter_string}' is not in the expected format 'YYYYQN'")
 
-def merge_reports(report_quarter):
+def merge_reports(report_quarter, overwrite=False):
     if report_quarter not in get_supported_quarters():
         raise ValueError(f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_supported_quarters()}")
-    
+    if report_quarter in get_processed_quarters() and not overwrite:
+        logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
+        return
+
     # Load the report data
     # DEMO
     demo_file = f"data/raw_faers/{report_quarter}/DEMO{format_quarter(report_quarter)}.txt"

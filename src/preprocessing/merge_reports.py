@@ -3,6 +3,13 @@ from loguru import logger
 import pandas as pd
 import argparse
 
+"""
+Merging the dataframes from raw_faers/{quarter} into a single dataframe.
+
+This will eventually need to be moved into a class / preprocessing pipeline 
+as the number of prepreocessing steps grows.
+"""
+
 def get_supported_quarters():
     """
     Checks the quarters in data/raw_faers and returns a list of the supported quarters.

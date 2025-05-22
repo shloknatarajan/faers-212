@@ -1,41 +1,45 @@
 """
 Search for MedDRA terms in a FAERS report
 """
+
 import pandas as pd
 import pickle
 from typing import List
 from src.load_data.load_report import load_report
 from loguru import logger
 
+
 def filter_by_any_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
     """
     Filter DataFrame to only include rows that contain ANY of the specified terms.
-    
+
     Args:
         df: DataFrame containing the data
         terms: List of terms to search for (all must be present)
-        
+
     Returns:
         DataFrame containing only rows that have all specified terms
     """
     terms_set = set(terms)
-    return df[df['pt'].apply(lambda term_list: any(t in terms_set for t in term_list))]
+    return df[df["pt"].apply(lambda term_list: any(t in terms_set for t in term_list))]
+
 
 def filter_by_all_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
     """
     Filter DataFrame to only include rows that contain ALL of the specified terms.
-    
+
     Args:
         df: DataFrame containing the data
         terms: List of terms to search for (all must be present)
-        
+
     Returns:
         DataFrame containing only rows that have all specified terms
     """
     # Filter rows where all terms are present
-    mask = df['pt'].apply(lambda x: all(term in x for term in terms))
-    
+    mask = df["pt"].apply(lambda x: all(term in x for term in terms))
+
     return df[mask]
+
 
 def search_meddra(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
     """
@@ -62,17 +66,20 @@ def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
     return [llt_to_soc[term] for term in meddra_terms]
 
 
-def search_system_organ_classes(report: pd.DataFrame, system_organ_classes: List[str]) -> pd.DataFrame:
+def search_system_organ_classes(
+    report: pd.DataFrame, system_organ_classes: List[str]
+) -> pd.DataFrame:
     """
     Search by MedDRA system organ classes
     Args:
         report: FAERS report
-        system_organ_classes: List of system organ classes by 
+        system_organ_classes: List of system organ classes by
     Returns:
         DataFrame of rows where the system organ class is in the list
     """
     logger.error("Not implemented")
     pass
+
 
 if __name__ == "__main__":
     report_quarter = "25Q1"

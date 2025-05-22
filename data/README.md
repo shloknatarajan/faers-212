@@ -24,7 +24,6 @@ python -m src.download_data.faers_downloader --quarters all
 ```
 
 Example usage for converting the raw data to processed
-
 ```
 python -m src.preprocessing.merge_reports --quarters 2024Q1
 ```

@@ -119,7 +119,12 @@ def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Merge FAERS reports.')
-    parser.add_argument('--quarter', type=str, help='The quarter to merge (e.g. 2024Q1)')
+    parser.add_argument('--quarters', nargs='+', type=str, help='The quarters to merge (e.g. 2024Q1)')
     args = parser.parse_args()
 
-    merge_reports(args.quarter)
+    if args.quarters == 'all':
+        for quarter in get_raw_quarters():
+            merge_reports(quarter)
+    else:
+        for quarter in args.quarters:
+            merge_reports(quarter)

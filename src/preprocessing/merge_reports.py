@@ -16,16 +16,14 @@ Need to add:
 """
 from src.utils import get_raw_quarters, get_processed_quarters, format_quarter
 
-
-def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
+def load_raw_data(report_quarter: str) -> pd.DataFrame:
+    """
+    Load the raw data from the raw_faers/{quarter} directory
+    """
     if report_quarter not in get_raw_quarters():
         raise ValueError(
             f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}"
         )
-    if report_quarter in get_processed_quarters() and not overwrite:
-        logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
-        return
-
     # Load the report data
     # DEMO
     demo_file = (
@@ -102,6 +100,20 @@ def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
         logger.error(f"THER{report_quarter}.txt not found")
         raise e
 
+def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
+    """
+    Merge the raw dataframes into a single dataframe
+    """
+    if report_quarter not in get_raw_quarters():
+        raise ValueError(
+            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}"
+        )
+    if report_quarter in get_processed_quarters() and not overwrite:
+        logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
+        return
+
+    demo_data, drug_data, reaction_data, outcome_data, rpsr_data, therapy_data = load_raw_data(report_quarter)
+    # === Load Data ===
     logger.info(f"Merging dataframes")
 
     # === Start with drug_data ===

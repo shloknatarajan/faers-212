@@ -5,8 +5,10 @@ This folder contains all of the data used throughout the repo.
 - FAERS Raw Data
 - FAERS Merged Data (merged on primaryid)
 - MedDRA Terms and Maps (this needs to be requested outside the scope of this repo)
-- RxNORM maps?
-- DrugBank IDs?
+- RxNORM maps
+
+## RxNorm Overview
+
 
 ## Thoughts
 - Do we even need to download the meddra terms if we provide the excel with the hierarchies?

@@ -1,8 +1,4 @@
 # FAERS Surveillance BMI 212
-## Pipeline Sections
-### Drug Preprocessing
-
-
 ### Automated Pipeline for Current Research Methods
 Current research methods follow relatively similar set of steps in order to create 2x2 contingency tables followed up with the application of some of the following statistical tests:
 - RRR (Relative Reporting Ratio)

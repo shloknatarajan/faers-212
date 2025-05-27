@@ -15,3 +15,12 @@ Note: Can't download MedDRA programatically. Needs to be downloaded and unzipped
 
 
 ## Usage
+### Download Data
+```
+python -m src.data_management.faers_downloader --quarter 2024Q1
+```
+Flags:
+```
+--quarter: Specify in the format YYYYQ#
+--overrite: True or False that specifies whether to overrite pre-existing data
+```

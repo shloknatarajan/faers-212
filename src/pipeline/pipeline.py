@@ -1,5 +1,6 @@
 from loguru import logger
 import pandas as pd
+from src.utils import get_raw_quarters, get_processed_quarters, format_quarter
 
 """
 Parameters:
@@ -20,8 +21,9 @@ class FAERSData:
     def __init__(self, quarters: list[str]):
         self.quarters = quarters
         self.working_df = None
-        self.available_processed_quarters = []
-        self.available_raw_quarters = []
+        self.available_processed_quarters = get_processed_quarters()
+        self.available_raw_quarters = get_raw_quarters()
+        self.missing_processed_quarters = self.check_missing_data()
 
     def merge_processed_quarters(self):
         """
@@ -33,19 +35,31 @@ class FAERSData:
         """
         Convert the raw quarters into processed quarters. Helper method for setup_data
         """
-        pass
+        if len(self.missing_processed_quarters) > 0:
+            logger.warning(f"Missing processed quarters: {self.missing_processed_quarters}. Converting raw quarters to processed quarters.")
+        for quarter in self.missing_processed_quarters:
+            
 
-    def check_data_exists(self):
+    def check_missing_data(self) -> list[str]:
         """
         Check if the dataframe exists in the data/processed_faers/ directory. Helper method for setup_data
-        1. Check if the dataframe exists in the data/processed_faers/ directory
-        2. If all the quarters are processed and available, return the dataframe concatenated together
-        3. If some data is missing, check if the raw dataframes exist in the data/raw_faers/ directory. Throw error if
-        quarter is missing.
-        4. If all the raw quarters are available, process them to create processed quarters
-        5. Merge together processed quarters (same as step 2)
+        1. Sets the attributes for available_processed_quarters and available_raw_quarters
+        2. Returns a list of missing quarters
         """
-        pass
+        missing_processed_quarters = []
+        missing_raw_quarters = []
+        for quarter in self.quarters:
+            if quarter not in self.available_processed_quarters:
+                if quarter in self.available_raw_quarters:
+                    missing_processed_quarters.append(quarter)
+                else:
+                    missing_raw_quarters.append(quarter)
+        if len(missing_raw_quarters) > 0:
+            error_message = f"Missing raw quarters: {missing_raw_quarters}. Please download the data first."
+            logger.error(error_message)
+            raise ValueError(error_message)
+
+        return missing_processed_quarters
     
     def setup_data(self):
         """

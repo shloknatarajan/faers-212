@@ -26,7 +26,7 @@ faers_download_page = [
 ]
 
 # ignore warnings
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore") # Not sure if this is needed
 
 
 def flatten_directory(directory_path):
@@ -82,6 +82,10 @@ def flatten_directory(directory_path):
 
 
 class FAERSDownloader:
+    """
+    Class for downloading FAERS data from the FDA website.
+    Used by methods below to download the raw data
+    """
     def __init__(self, data_dir: str = "data/raw_faers"):
         self.data_dir = Path(data_dir)
         self.file_urls = self.get_file_urls()

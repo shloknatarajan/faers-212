@@ -1,5 +1,8 @@
 # FAERS Surveillance BMI 212
-## Goals
+## Pipeline Sections
+### Drug Preprocessing
+
+
 ### Automated Pipeline for Current Research Methods
 Current research methods follow relatively similar set of steps in order to create 2x2 contingency tables followed up with the application of some of the following statistical tests:
 - RRR (Relative Reporting Ratio)
@@ -32,10 +35,11 @@ Rather than relying on researchers to spot trends and study them, the pipeline s
 We porvide a conda environment.yml file as well as a pixi toml
 
 To create the conda environment locally, save environment.yml in the faers-cohort-generation folder. Then, run:
-
+```
 conda env create -f environment.yml
-
 conda activate faers-env
+```
+or install [pixi](https://pixi.sh/latest/) and run pixi install to download the correct dependencies
 
 ### To add a new dependency:
 

@@ -4,7 +4,7 @@ from loguru import logger
 from pathlib import Path
 import argparse
 from typing import List
-from src.utils import get_processed_quarters, format_quarter
+from src.utils import available_processed_quarters, format_quarter
 
 
 def get_report_path(report_quarter: str) -> Path:
@@ -21,9 +21,9 @@ def load_report(report_quarter: str) -> pd.DataFrame:
     """
     Load a report from the given quarter
     """
-    if report_quarter not in get_processed_quarters():
+    if report_quarter not in available_processed_quarters():
         raise ValueError(
-            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_processed_quarters()}"
+            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {available_processed_quarters()}"
         )
 
     # Get file path to report
@@ -53,14 +53,15 @@ def load_reports(quarters: List[str]) -> pd.DataFrame:
     Load a report from the given quarter
     """
     # Check if all of the quarters are processed
-    missing_quarters = [quarter for quarter in quarters if quarter not in get_processed_quarters()]
+    missing_quarters = [quarter for quarter in quarters if quarter not in available_processed_quarters()]
     if len(missing_quarters) > 0:
         logger.error(f"Missing processed quarters: {missing_quarters}")
         raise ValueError(f"Missing processed quarters: {missing_quarters}")
 
+    # Load all available processed quarters
     if len(quarters) == 1 and quarters[0] == "all":
         logger.info("Loading all processed quarters")
-        quarters = get_processed_quarters()
+        quarters = available_processed_quarters()
     return pd.concat([load_report(quarter) for quarter in quarters])
 
 

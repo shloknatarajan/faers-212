@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-def get_raw_quarters():
+def available_raw_quarters():
     """
     Checks the quarters in data/raw_faers and returns a list of the supported quarters.
     """
@@ -13,7 +13,7 @@ def get_raw_quarters():
     return supported_quarters
 
 
-def get_processed_quarters():
+def available_processed_quarters():
     """
     Checks the quarters in data/processed_faers and returns a list of the supported quarters.
     """

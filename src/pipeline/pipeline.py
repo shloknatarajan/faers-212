@@ -1,6 +1,6 @@
 from loguru import logger
 import pandas as pd
-from src.utils import get_raw_quarters, get_processed_quarters, format_quarter
+from src.utils import get_raw_quarters, available_processed_quarters, format_quarter
 
 """
 Parameters:
@@ -21,7 +21,7 @@ class FAERSData:
     def __init__(self, quarters: list[str]):
         self.quarters = quarters
         self.working_df = None
-        self.available_processed_quarters = get_processed_quarters()
+        self.available_processed_quarters = available_processed_quarters()
         self.available_raw_quarters = get_raw_quarters()
         self.missing_processed_quarters = self.check_missing_data()
 
@@ -37,8 +37,7 @@ class FAERSData:
         """
         if len(self.missing_processed_quarters) > 0:
             logger.warning(f"Missing processed quarters: {self.missing_processed_quarters}. Converting raw quarters to processed quarters.")
-        for quarter in self.missing_processed_quarters:
-            
+        
 
     def check_missing_data(self) -> list[str]:
         """
@@ -133,3 +132,4 @@ class Pipeline:
     
     def run(self):
         pass
+    

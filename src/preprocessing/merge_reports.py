@@ -14,7 +14,7 @@ Need to add:
 - deduplicatin
 - drug normalization
 """
-from src.utils import get_raw_quarters, get_processed_quarters, format_quarter
+from src.utils import get_raw_quarters, available_processed_quarters, format_quarter
 
 def load_raw_data(report_quarter: str) -> pd.DataFrame:
     """
@@ -108,7 +108,7 @@ def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
         raise ValueError(
             f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}"
         )
-    if report_quarter in get_processed_quarters() and not overwrite:
+    if report_quarter in available_processed_quarters() and not overwrite:
         logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
         return
 

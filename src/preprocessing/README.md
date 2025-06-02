@@ -13,4 +13,4 @@ Flags:
 --quarter: Specify in the format YYYYQ#
 --overrite: True or False that specifies whether to overrite pre-existing data
 ```
-The raw data is parsed from data/raw_faers and the output is MERGEDYYQ#.csv (ex. MERGED24Q1.csv) in data/processed_faers
+The raw data is parsed from data/faers_reports and the output is MERGEDYYQ#.csv (ex. MERGED24Q1.csv) in data/processed_faers

@@ -16,7 +16,7 @@ class Experiment:
         self.contingency_table = None
         self.original_data = None
 
-    def set_data(self, data: FAERSDataLoader):
+    def set_data(self):
         pass
 
     def filter_by_drug_name(self):

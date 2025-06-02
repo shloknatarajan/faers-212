@@ -21,7 +21,7 @@ def cmd_preprocess(args):
         out_dir=args.output_dir,
         drug = args.drug
     )
-    print("Pre-processed tables saved to", args.output_dirut)
+    print("Pre-processed tables saved to", args.output_dir)
 
 
 #ADD TO ANALYSIS

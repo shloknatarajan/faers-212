@@ -45,3 +45,40 @@ Make sure to add the new dependency to the environment.yml file!
 ### To update your local environment after someone else has added a dependency:
 
 conda env update --file environment.yml --prune
+
+
+##Describe Data Calls
+
+```bash
+# Describe age distribution
+python describe_data.py /path/to/data/ age
+
+# Describe sex distribution
+python describe_data.py /path/to/data/ sex
+
+# Describe country distribution
+python describe_data.py /path/to/data/ country
+
+# Describe outcome severity
+python describe_data.py /path/to/data/ severity
+
+# Describe reporting delay 
+python describe_data.py /path/to/data/ delay
+
+# Overall dataset description
+python describe_data.py /path/to/data/ overall
+```
+
+## Drug Analysis Calls
+
+```bash
+# Basic analysis
+python drug_analysis.py /path/to/data/ erdafitinib
+
+# With age filtering  
+python drug_analysis.py /path/to/data/ erdafitinib --min-age 18 --max-age 85
+
+# With custom top indications count
+python drug_analysis.py /path/to/data/ erdafitinib --top-indications 5
+```
+

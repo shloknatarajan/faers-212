@@ -19,17 +19,12 @@ from loguru import logger
 from typing import List
 import argparse
 from pathlib import Path
-
-# this script will find target in this list pages.
-faers_download_page = [
-    "https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"
-]
-
-# ignore warnings
-warnings.filterwarnings("ignore") # Not sure if this is needed
+from loguru import logger
+from src.utils.supported_quarters import get_available_online_quarters, get_available_raw_quarters, get_available_processed_quarters
+from src.download_data.ParseQuarters import ParseQuarters
 
 
-def flatten_directory(directory_path):
+def flatten_directory(directory_path: str, debug: bool = False):
     """
     Flattens all subdirectories in the given directory by moving all files to the top level
     and removing all folders.
@@ -69,14 +64,16 @@ def flatten_directory(directory_path):
         # Move the file
         if source_path != dest_path:  # Don't try to move a file to itself
             shutil.move(source_path, dest_path)
-            logger.debug(f"Moved: {source_path} -> {dest_path}")
+            if debug:
+                logger.debug(f"Moved: {source_path} -> {dest_path}")
 
     # Remove all subdirectories (bottom-up to ensure they're empty)
     for root, dirs, files in os.walk(directory_path, topdown=False):
         if root != directory_path:  # Don't remove the top-level directory
             try:
                 os.rmdir(root)
-                logger.debug(f"Removed directory: {root}")
+                if debug:
+                    logger.debug(f"Removed directory: {root}")
             except OSError as e:
                 logger.error(f"Error removing directory {root}: {e}")
 
@@ -86,62 +83,83 @@ class FAERSDownloader:
     Class for downloading FAERS data from the FDA website.
     Used by methods below to download the raw data
     """
-    def __init__(self, data_dir: str = "data/raw_faers"):
-        self.data_dir = Path(data_dir)
-        self.file_urls = self.get_file_urls()
-
-    def get_file_urls(self) -> dict[str, str]:
+    def __init__(self, save_dir: str = "data", debug: bool = False):
+        self.debug = debug
+        self.save_dir = Path(save_dir).joinpath("raw_faers")
+        self.available_online_quarters = get_available_online_quarters()
+    
+    def help(self):
         """
-        find all web urls in the FAERS download page
-        :return: dict files = {"YYYYQN":"url"}
+        List all available online quarters and print example message
         """
-        logger.info("Fetching web urls")
-        files = {}
-        for page_url in faers_download_page:
-            try:
-                request = urlopen(page_url)
-                page_bs = BeautifulSoup(request, "lxml")
-                request.close()
-            except:
-                request = urlopen(page_url)
-                page_bs = BeautifulSoup(request)
-            for url in page_bs.find_all("a"):
-                a_string = str(url)
-                if "ASCII" in a_string.upper():
-                    t_url = url.get("href")
-                    # Extract year and quarter from the URL
-                    match = re.search(r"ascii_(\d{4})([qQ]\d)", t_url)
-                    if match:
-                        year = match.group(1)
-                        quarter = match.group(2).upper()  # Convert to uppercase
-                        key = f"{year}{quarter}"
-                        files[key] = t_url
+        print(f"Available online quarters: {self.available_online_quarters.keys()}")
+        print(f"Available local unprocessed quarters: {get_available_raw_quarters()}")
+        print(f"Available local processed quarters: {get_available_processed_quarters()}")
+        print(f"Example usage: ")
+        print(f"downloader = FAERSDownloader()")
+        print(f"downloader.download_quarters(start_year=2023, end_year=2023, start_quarter=1, end_quarter=4) # Download all quarters for 2023")
+        print(f"downloader.download_quarter(quarter='2023Q1') # Download a single quarter")
 
-            logger.info("Got all quarterly zip file urls")
-            return files
+    def validate_quarters(self, parsed_quarters: List[str]):
+        """
+        Make sure the quarters are available online
+        """
+        missing_quarters = []
+        for quarter in parsed_quarters:
+            if quarter not in self.available_online_quarters:
+                missing_quarters.append(quarter)
+        if missing_quarters:
+            logger.error(f"Quarters {missing_quarters} not found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)")
+            raise ValueError(f"Quarters {missing_quarters} not found in {self.available_online_quarters.keys()}")
+        if self.debug:
+            logger.debug(f"Quarters {parsed_quarters} found in {self.available_online_quarters.keys()}. All quarters validated.")
+        return None
+    
+    def download_quarters(self, start_year: int = None, end_year: int = None, start_quarter: int = 1, end_quarter: int = 4, overwrite: bool = False, remove_pdfs: bool = True):
+        """
+        Download a range of quarters of FAERS data
+        Args:
+            start_year: int = None
+            end_year: int = None
+            start_quarter: int = 1
+            end_quarter: int = 4
+            overwrite: bool = False
+            remove_pdfs: bool = True
+        """
+        parsed_quarters = ParseQuarters(start_year, end_year, start_quarter, end_quarter, debug=self.debug).get_quarters()
+        self.validate_quarters(parsed_quarters)
 
-    def download_quarter(self, quarter: str, overwrite: bool = False):
+        for quarter in tqdm(parsed_quarters):
+            logger.info(f"Downloading {quarter}")
+            self.download_quarter(quarter, overwrite=overwrite, remove_pdfs=remove_pdfs)
+
+    def download_quarter(self, quarter: str, overwrite: bool = False, remove_pdfs: bool = True):
         """
         Download a single quarter of FAERS data
+        Args:
+            quarter: the quarter of the FAERS data to download
+            overwrite: whether to overwrite the existing data
+            remove_pdfs: whether to remove pdf files (READMEs)
         """
-        # Check if the quarter folder exists
-        logger.info(f"Downloading {quarter} from {self.file_urls[quarter]}")
-        if os.path.exists(os.path.join(self.data_dir, quarter)):
+        # Check if the quarter is available online
+        if quarter not in self.available_online_quarters:
+            logger.error(f"Quarter {quarter} not found in {self.available_online_quarters.keys()}")
+            return
+        
+        # Check if the quarter has already been downloaded
+        if os.path.exists(os.path.join(self.save_dir, quarter)):
             if not overwrite:
-                logger.info(f"Skipping {quarter} because it already exists")
+                logger.warning(f"Skipping {quarter} because it already exists")
                 return
             else:
-                logger.info(f"Overwriting {quarter}")
+                logger.warning(f"Overwriting {quarter}")
 
         # Create the quarter folder if it doesn't exist
-        os.makedirs(os.path.join(self.data_dir, quarter), exist_ok=True)
+        os.makedirs(os.path.join(self.save_dir, quarter), exist_ok=True)
 
         # Download the zip file
-        download_folder_path = os.path.join(self.data_dir, quarter)
-        if quarter not in self.file_urls:
-            logger.error(f"Quarter {quarter} not found in {self.file_urls.keys()}")
-            return
-        url = self.file_urls[quarter]
+        download_folder_path = os.path.join(self.save_dir, quarter)
+        url = self.available_online_quarters[quarter]
         r = requests.get(url, timeout=200)
 
         # Unzip
@@ -149,31 +167,8 @@ class FAERSDownloader:
         z = ZipFile(BytesIO(r.content))
         z.extractall(download_folder_path)
         r.close()
-        # self.remove_meta_files(self.data_dir)
         logger.info(f"{quarter} downloaded to {download_folder_path}")
-
-    def download_files(self, faers_files):
-        """
-        download faers data files.
-        :param faers_files: dict faers_files = {"name":"url"}
-        :param data_dir: data/raw_faers
-        :return: none
-        """
-        for file_name in tqdm(faers_files):
-            try:
-                logger.info(f"Downloading {file_name}")
-                r = requests.get(faers_files[file_name], timeout=200)
-                z = ZipFile(BytesIO(r.content))
-                z.extractall(self.data_dir)
-                r.close()
-
-                # delete and copy files to data/raw_faers.
-                self.remove_meta_files(self.data_dir)
-                logger.info(f"Downloaded {file_name}")
-            except Exception as e:
-                logger.error(f"Download failed! Error: {str(e)}")
-            logger.info("Sleeping 30 seconds before starting download a new file.")
-            time.sleep(30)
+        self.clean_files(quarter, remove_pdfs=remove_pdfs)
 
     def clean_files(self, quarter: str, remove_pdfs: bool = True):
         """
@@ -182,8 +177,8 @@ class FAERSDownloader:
             quarter: the quarter of the FAERS data to clean
             remove_pdfs: whether to remove pdf files (READMEs)
         """
-        logger.info(f"Cleaning {quarter}")
-        quarter_dir = os.path.join(self.data_dir, quarter)
+        logger.info(f"Cleaning {quarter} files")
+        quarter_dir = os.path.join(self.save_dir, quarter)
         flatten_directory(quarter_dir)
 
         # Remove pdf files
@@ -192,65 +187,21 @@ class FAERSDownloader:
             for file in files:
                 if file.endswith(".pdf"):
                     os.remove(os.path.join(quarter_dir, file))
-            logger.debug(f"Removed all pdf files")
+            logger.info(f"Removed all pdf files")
 
-
-def download_all_quarters(overwrite: bool = False, remove_pdfs: bool = True):
-    """
-    Download all quarters of FAERS data
-    """
-    downloader = FAERSDownloader("data/raw_faers")
-    for quarter in downloader.file_urls.keys():
-        downloader.download_quarter(quarter, overwrite=overwrite)
-        downloader.clean_files(quarter, remove_pdfs=remove_pdfs)
-
-
-def download_quarters(
-    quarters: List[str], overwrite: bool = False, remove_pdfs: bool = True
-):
+def download_quarter(quarter: str, save_dir: str = "data", overwrite: bool = False, remove_pdfs: bool = True, debug: bool = False):
     """
     Download a single quarter of FAERS data
     """
-    downloader = FAERSDownloader("data/raw_faers")
-    for quarter in quarters:
-        downloader.download_quarter(quarter, overwrite=overwrite)
-        downloader.clean_files(quarter, remove_pdfs=remove_pdfs)
+    # Convert quarter to start year, start quarter, end year, end quarter
+    start_year = int(quarter[:2])
+    start_quarter = int(quarter[2])
+    end_year = int(quarter[:2])
+    end_quarter = int(quarter[2])
+
+    downloader = FAERSDownloader(save_dir=save_dir, debug=debug)
+    downloader.download_quarters(start_year, end_year, start_quarter, end_quarter, overwrite, remove_pdfs)
 
 
-def list_available_quarters():
-    """
-    List all available quarters of FAERS data
-    """
-    downloader = FAERSDownloader("data/raw_faers")
-    return list(downloader.file_urls.keys())
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Download specific FAERS data quarters."
-    )
-    parser.add_argument(
-        "--quarters",
-        nargs="+",
-        type=str,
-        help='List of quarters to download, or "all" to download all (e.g., 2025Q1 2025Q2 or all)',
-    )
-    parser.add_argument(
-        "--overwrite", action="store_true", help="Overwrite existing data"
-    )
-    parser.add_argument("--remove_pdfs", action="store_true", help="Remove pdf files")
-    args = parser.parse_args()
-
-    if args.quarters:
-        if len(args.quarters) == 1 and args.quarters[0].lower() == "all":
-            download_all_quarters(
-                overwrite=args.overwrite, remove_pdfs=args.remove_pdfs
-            )
-        else:
-            download_quarters(
-                args.quarters, overwrite=args.overwrite, remove_pdfs=args.remove_pdfs
-            )
-    else:
-        print(
-            "Please specify one or more quarters to download using --quarters (e.g., --quarters 2025Q1 2025Q2 or download all quarters with --quarters all)"
-        )
+    
+    

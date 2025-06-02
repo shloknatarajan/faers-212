@@ -1,24 +1,30 @@
 import os
 from pathlib import Path
+import re
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+from typing import List
+faers_download_page = [
+    "https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"
+]
 
-
-def available_raw_quarters():
+def get_available_raw_quarters(save_dir: str = "data") -> List[str]:
     """
     Checks the quarters in data/raw_faers and returns a list of the supported quarters.
     """
     supported_quarters = []
-    for folder in Path("data/raw_faers").iterdir():
+    for folder in Path(save_dir).joinpath("raw_faers").iterdir():
         if folder.is_dir():
             supported_quarters.append(folder.name)
     return supported_quarters
 
 
-def available_processed_quarters():
+def get_available_processed_quarters(save_dir: str = "data") -> List[str]:
     """
     Checks the quarters in data/processed_faers and returns a list of the supported quarters.
     """
     supported_quarters = []
-    for folder in Path("data/processed_faers").iterdir():
+    for folder in Path(save_dir).joinpath("processed_faers").iterdir():
         if folder.is_dir():
             supported_quarters.append(folder.name)
     return supported_quarters
@@ -47,3 +53,30 @@ def format_quarter(quarter_string: str) -> str:
         raise ValueError(
             f"Input '{quarter_string}' is not in the expected format 'YYYYQN'"
         )
+
+def get_available_online_quarters() -> dict[str, str]:
+    """
+    find all web urls in the FAERS download page
+    :return: dict files = {"YYYYQN":"url"}
+    """
+    files = {}
+    for page_url in faers_download_page:
+        try:
+            request = urlopen(page_url)
+            page_bs = BeautifulSoup(request, "lxml")
+            request.close()
+        except:
+            request = urlopen(page_url)
+            page_bs = BeautifulSoup(request)
+        for url in page_bs.find_all("a"):
+            a_string = str(url)
+            if "ASCII" in a_string.upper():
+                t_url = url.get("href")
+                # Extract year and quarter from the URL
+                match = re.search(r"ascii_(\d{4})([qQ]\d)", t_url)
+                if match:
+                    year = match.group(1)
+                    quarter = match.group(2).upper()  # Convert to uppercase
+                    key = f"{year}{quarter}"
+                    files[key] = t_url
+    return files

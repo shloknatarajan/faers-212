@@ -21,7 +21,7 @@ import argparse
 from pathlib import Path
 from loguru import logger
 from src.utils.supported_quarters import get_available_online_quarters, get_available_raw_quarters, get_available_processed_quarters
-from src.download_data.parse_quarters import ParseQuarters
+from src.parse_quarters import ParseQuarters
 
 
 def flatten_directory(directory_path: str, debug: bool = False):
@@ -93,27 +93,12 @@ class FAERSDownloader:
         List all available online quarters and print example message
         """
         print(f"Available online quarters: {self.available_online_quarters.keys()}")
-        print(f"Available local unprocessed quarters: {get_available_raw_quarters()}")
-        print(f"Available local processed quarters: {get_available_processed_quarters()}")
+        print(f"Available local unprocessed quarters: {get_available_raw_quarters(self.save_dir)}")
+        print(f"Available local processed quarters: {get_available_processed_quarters(self.save_dir)}")
         print(f"Example usage: ")
         print(f"downloader = FAERSDownloader()")
         print(f"downloader.download_quarters(start_year=2023, end_year=2023, start_quarter=1, end_quarter=4) # Download all quarters for 2023")
         print(f"downloader.download_quarter(quarter='2023Q1') # Download a single quarter")
-
-    def validate_quarters(self, parsed_quarters: List[str]):
-        """
-        Make sure the quarters are available online
-        """
-        missing_quarters = []
-        for quarter in parsed_quarters:
-            if quarter not in self.available_online_quarters:
-                missing_quarters.append(quarter)
-        if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)")
-            raise ValueError(f"Quarters {missing_quarters} not found in {self.available_online_quarters.keys()}")
-        if self.debug:
-            logger.debug(f"Quarters {parsed_quarters} found in {self.available_online_quarters.keys()}. All quarters validated.")
-        return None
     
     def download_quarters(self, start_year: int = None, end_year: int = None, start_quarter: int = 1, end_quarter: int = 4, overwrite: bool = False, remove_pdfs: bool = True):
         """
@@ -126,9 +111,10 @@ class FAERSDownloader:
             overwrite: bool = False
             remove_pdfs: bool = True
         """
-        parsed_quarters = ParseQuarters(start_year, end_year, start_quarter, end_quarter, debug=self.debug).get_quarters()
-        self.validate_quarters(parsed_quarters)
-
+        parsed_quarters = ParseQuarters(start_year, end_year, start_quarter, end_quarter, debug=self.debug)
+        parsed_quarters.check_available_online()
+        parsed_quarters = parsed_quarters.get_quarters()
+        
         for quarter in tqdm(parsed_quarters):
             logger.info(f"Downloading {quarter}")
             self.download_quarter(quarter, overwrite=overwrite, remove_pdfs=remove_pdfs)

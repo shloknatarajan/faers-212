@@ -1,5 +1,6 @@
 from src.data_loader import FAERSDataLoader
 
+
 class Experiment:
     """
     Experiment class to manage a search run. Each experiment instance is a single search run.
@@ -9,6 +10,7 @@ class Experiment:
 
     Would make sense to accept a FAERSData class instead of a bunch of dataframes
     """
+
     def __init__(self, drug_name: str, ae_term: str):
         self.drug_name = drug_name
         self.ae_term = ae_term

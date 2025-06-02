@@ -3,6 +3,7 @@ import numpy as np
 
 from loguru import logger
 
+
 def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
     """
     Factory function to preprocess the dataframe for the given type.
@@ -34,7 +35,22 @@ def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
         )
 
 
-def preprocess_drug_df(drug: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
+def load_rxnorm_mapping(mapping_path, drug_df):
+
+    # Load full mapping
+    print(f"Loading RxNorm mapping from: {mapping_path}")
+    mapping = pd.read_csv(mapping_path)
+
+    # Get unique drugnames from FAERS drug table for given time frame
+    faers_drugnames = drug_df["drugname"].dropna().unique()
+
+    # Only keep relevant names to minimize merge time
+    mapping = mapping[mapping["drugname"].isin(faers_drugnames)]
+
+    return mapping
+
+
+def preprocess_drug_df(drug):
     drug = drug[
         [
             "primaryid",
@@ -48,26 +64,24 @@ def preprocess_drug_df(drug: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
         ]
     ]
 
-    if debug:
-        logger.debug(f"Starting number of reports in 'drug' file: {drug.shape[0]}")
+    logger.info(f"Starting number of reports in 'drug' file: {drug.shape[0]}")
 
     drug = drug[drug["role_cod"] == "PS"]
-    if debug:
-        logger.debug(
-            f"Number of reports in the 'drug' file where drug is the primary suspect: {drug.shape[0]}"
-        )
+    logger.info(
+        f"Number of reports in the 'drug' file where drug is the primary suspect: {drug.shape[0]}"
+    )
 
     drug = drug[pd.notnull(drug["drugname"])]  # Drops Nulls
     drug = drug[~drug["drugname"].isin(["unknown"])]  # Drops unknowns
 
-    if debug:
-        logger.debug(
-            f"Number of reports in the 'drug' file after unknown/null drugs are removed: {drug.shape[0]}"
-        )
+    logger.info(
+        f"Number of reports in the 'drug' file after unknown/null drugs are removed: {drug.shape[0]}"
+    )
 
+    # Clean drug names BEFORE loading mapping
     drug["drugname"] = (
         drug["drugname"].str.strip().str.lower()
-    )  # Stips whitespace, Transforms to lowercase
+    )  # Strips whitespace, Transforms to lowercase
     drug["drugname"] = drug["drugname"].str.replace(
         "\\", "/"
     )  # Standardizes slashes to '/'
@@ -75,8 +89,20 @@ def preprocess_drug_df(drug: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
         lambda x: x[:-1] if str(x).endswith(".") else x
     )  # Removes periods at the end of drug names
 
+    # Now load mapping after cleaning drug names
+    name_mapping = load_rxnorm_mapping("data/rxnorm_map.csv", drug)
+
+    # Add in rxnorm mapping results
+    drug = drug.merge(
+        name_mapping[["drugname", "best_match_name", "rxnorm_name"]],
+        how="left",
+        on="drugname",
+    )
+
     drug["prod_ai"] = drug["prod_ai"].str.lower()
     drug = drug.drop_duplicates(subset=["primaryid"], keep="first")
+
+    logger.info(f"Number of reports in the 'drug' file after rxnorm mapping: {drug.shape[0]}")
 
     return drug
 

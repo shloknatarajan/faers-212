@@ -16,6 +16,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+
 class FAERSDataLoader:
     """
     Loads the FAERS data for the given start and end years and quarters.
@@ -142,9 +143,6 @@ class FAERSDataLoader:
         print(
             f"loader.get_data() # Returns the reac, drug, demo, outc, ther, indi dataframes"
         )
-
-
-
 
 
 def load_faers_data(

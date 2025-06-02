@@ -17,6 +17,8 @@ To Manage:
 - Merged dataframe that gets filtered down by drug and AE term
 - Contingency table
 """
+
+
 class FAERSData:
     def __init__(self, quarters: list[str]):
         self.quarters = quarters
@@ -36,8 +38,9 @@ class FAERSData:
         Convert the raw quarters into processed quarters. Helper method for setup_data
         """
         if len(self.missing_processed_quarters) > 0:
-            logger.warning(f"Missing processed quarters: {self.missing_processed_quarters}. Converting raw quarters to processed quarters.")
-        
+            logger.warning(
+                f"Missing processed quarters: {self.missing_processed_quarters}. Converting raw quarters to processed quarters."
+            )
 
     def check_missing_data(self) -> list[str]:
         """
@@ -59,7 +62,7 @@ class FAERSData:
             raise ValueError(error_message)
 
         return missing_processed_quarters
-    
+
     def setup_data(self):
         """
         Create the working dataframe from the quarters param
@@ -76,7 +79,7 @@ class FAERSData:
         Preprocess the dataframe
         """
         pass
-    
+
     def get_data(self) -> pd.DataFrame:
         """
         Returns the working dataframe (getter method)
@@ -88,6 +91,7 @@ class Pipeline:
     """
     Pipeline class to manage a search run. Each pipeline instance is a single search run.
     """
+
     def __init__(self, drug_name: str, ae_term: str):
         self.drug_name = drug_name
         self.ae_term = ae_term
@@ -117,19 +121,18 @@ class Pipeline:
         Filter the working dataframe by the AE term
         """
         pass
-    
+
     def create_contingency_table(self):
         """
         Create the contingency table using the working dataframe
         """
         pass
-    
+
     def run_stats_test(self):
         """
         Run the stats test on the contingency table
         """
         pass
-    
+
     def run(self):
         pass
-    

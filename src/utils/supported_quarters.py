@@ -4,9 +4,11 @@ import re
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from typing import List
+
 faers_download_page = [
     "https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"
 ]
+
 
 def get_available_downloaded_quarters(save_dir: str = "data") -> List[str]:
     """
@@ -55,6 +57,7 @@ def convert_quarter_file_str(quarter_string: str) -> str:
         raise ValueError(
             f"Input '{quarter_string}' is not in the expected format 'YYYYQN'"
         )
+
 
 def get_available_online_quarters() -> dict[str, str]:
     """

@@ -1,13 +1,16 @@
 """
 Add a column with the normalized drug name
 """
+
 import pandas as pd
+
 
 def normalize_drug_name(drug_name: str) -> str:
     """
     Normalize the drug name
     """
     pass
+
 
 def normalize_drug_names(df: pd.DataFrame) -> pd.DataFrame:
     """

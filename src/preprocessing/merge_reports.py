@@ -14,7 +14,12 @@ Need to add:
 - deduplicatin
 - drug normalization
 """
-from src.utils import get_available_downloaded_quarters, available_processed_quarters, format_quarter
+from src.utils import (
+    get_available_downloaded_quarters,
+    available_processed_quarters,
+    format_quarter,
+)
+
 
 def load_raw_data(report_quarter: str) -> pd.DataFrame:
     """
@@ -100,6 +105,7 @@ def load_raw_data(report_quarter: str) -> pd.DataFrame:
         logger.error(f"THER{report_quarter}.txt not found")
         raise e
 
+
 def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
     """
     Merge the raw dataframes into a single dataframe
@@ -112,7 +118,9 @@ def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
         logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
         return
 
-    demo_data, drug_data, reaction_data, outcome_data, rpsr_data, therapy_data = load_raw_data(report_quarter)
+    demo_data, drug_data, reaction_data, outcome_data, rpsr_data, therapy_data = (
+        load_raw_data(report_quarter)
+    )
     # === Load Data ===
     logger.info(f"Merging dataframes")
 

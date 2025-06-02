@@ -17,6 +17,7 @@ def get_report_path(report_quarter: str) -> Path:
         / f"MERGED{format_quarter(report_quarter)}.csv"
     )
 
+
 def load_report(report_quarter: str) -> pd.DataFrame:
     """
     Load a report from the given quarter
@@ -53,7 +54,9 @@ def load_reports(quarters: List[str]) -> pd.DataFrame:
     Load a report from the given quarter
     """
     # Check if all of the quarters are processed
-    missing_quarters = [quarter for quarter in quarters if quarter not in available_processed_quarters()]
+    missing_quarters = [
+        quarter for quarter in quarters if quarter not in available_processed_quarters()
+    ]
     if len(missing_quarters) > 0:
         logger.error(f"Missing processed quarters: {missing_quarters}")
         raise ValueError(f"Missing processed quarters: {missing_quarters}")

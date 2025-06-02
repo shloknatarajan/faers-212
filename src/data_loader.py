@@ -1,4 +1,8 @@
-from src.utils import get_available_downloaded_quarters, get_available_processed_quarters, convert_quarter_file_str
+from src.utils import (
+    get_available_downloaded_quarters,
+    get_available_processed_quarters,
+    convert_quarter_file_str,
+)
 from src.parse_quarters import ParseQuarters
 import pandas as pd
 import numpy as np
@@ -8,7 +12,9 @@ from tqdm import tqdm
 
 # suppress warnings
 import warnings
+
 warnings.filterwarnings("ignore")
+
 
 class FAERSDataLoader:
     """
@@ -22,12 +28,23 @@ class FAERSDataLoader:
         end_quarter: int
         debug: bool
     """
-    def __init__(self, start_year: int, end_year: int, start_quarter: int = 1, end_quarter: int = 4, save_dir: str = "data", debug: bool = False):
+
+    def __init__(
+        self,
+        start_year: int,
+        end_year: int,
+        start_quarter: int = 1,
+        end_quarter: int = 4,
+        save_dir: str = "data",
+        debug: bool = False,
+    ):
         self.save_dir = save_dir
         self.available_downloaded_quarters = get_available_downloaded_quarters(save_dir)
 
         # Parse the quarters and make sure they are available locally
-        self.parsed_quarters = ParseQuarters(start_year, end_year, start_quarter, end_quarter)
+        self.parsed_quarters = ParseQuarters(
+            start_year, end_year, start_quarter, end_quarter
+        )
         self.parsed_quarters.check_available_downloaded(save_dir)
         self.parsed_quarters = self.parsed_quarters.get_quarters()
 
@@ -47,27 +64,43 @@ class FAERSDataLoader:
         Load the data for the given quarter.
         """
         if quarter not in self.available_downloaded_quarters:
-            logger.error(f"Quarter {quarter} not found in {self.save_dir}/faers_reports")
-            raise ValueError(f"Quarter {quarter} not found in {self.save_dir}/faers_reports")
-        
+            logger.error(
+                f"Quarter {quarter} not found in {self.save_dir}/faers_reports"
+            )
+            raise ValueError(
+                f"Quarter {quarter} not found in {self.save_dir}/faers_reports"
+            )
+
         # Construct the file paths
-        reac_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"REAC{convert_quarter_file_str(quarter)}.txt")
-        drug_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"DRUG{convert_quarter_file_str(quarter)}.txt")
-        demo_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"DEMO{convert_quarter_file_str(quarter)}.txt")
-        outc_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"OUTC{convert_quarter_file_str(quarter)}.txt")
-        ther_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"THER{convert_quarter_file_str(quarter)}.txt")
-        indi_file_path = Path(self.save_dir).joinpath("faers_reports", quarter, f"INDI{convert_quarter_file_str(quarter)}.txt")
+        reac_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"REAC{convert_quarter_file_str(quarter)}.txt"
+        )
+        drug_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"DRUG{convert_quarter_file_str(quarter)}.txt"
+        )
+        demo_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"DEMO{convert_quarter_file_str(quarter)}.txt"
+        )
+        outc_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"OUTC{convert_quarter_file_str(quarter)}.txt"
+        )
+        ther_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"THER{convert_quarter_file_str(quarter)}.txt"
+        )
+        indi_file_path = Path(self.save_dir).joinpath(
+            "faers_reports", quarter, f"INDI{convert_quarter_file_str(quarter)}.txt"
+        )
 
         # Preprocess the data
-        reac = preprocess(pd.read_csv(reac_file_path, sep="$"), 'reac')
-        drug = preprocess(pd.read_csv(drug_file_path, sep="$"), 'drug')
-        demo = preprocess(pd.read_csv(demo_file_path, sep="$"), 'demo')
-        outc = preprocess(pd.read_csv(outc_file_path, sep="$"), 'outc')
-        ther = preprocess(pd.read_csv(ther_file_path, sep="$"), 'ther')
-        indi = preprocess(pd.read_csv(indi_file_path, sep="$"), 'indi')
+        reac = preprocess(pd.read_csv(reac_file_path, sep="$"), "reac")
+        drug = preprocess(pd.read_csv(drug_file_path, sep="$"), "drug")
+        demo = preprocess(pd.read_csv(demo_file_path, sep="$"), "demo")
+        outc = preprocess(pd.read_csv(outc_file_path, sep="$"), "outc")
+        ther = preprocess(pd.read_csv(ther_file_path, sep="$"), "ther")
+        indi = preprocess(pd.read_csv(indi_file_path, sep="$"), "indi")
 
         return reac, drug, demo, outc, ther, indi
-    
+
     def load_quarters(self) -> None:
         """
         Load the data for the given start and end years and quarters.
@@ -81,22 +114,35 @@ class FAERSDataLoader:
             self.outc_data = pd.concat([self.outc_data, outc])
             self.ther_data = pd.concat([self.ther_data, ther])
             self.indi_data = pd.concat([self.indi_data, indi])
-    
+
     def get_data(self):
         """
         Get the data for the given start and end years and quarters.
         """
-        return self.reac_data, self.drug_data, self.demo_data, self.outc_data, self.ther_data, self.indi_data
-    
+        return (
+            self.reac_data,
+            self.drug_data,
+            self.demo_data,
+            self.outc_data,
+            self.ther_data,
+            self.indi_data,
+        )
+
     def help(self):
         """
         List all available online quarters and print example message
         """
-        print(f"Available locally downloaded quarters: {get_available_downloaded_quarters(self.base_save_dir)}")
+        print(
+            f"Available locally downloaded quarters: {get_available_downloaded_quarters(self.base_save_dir)}"
+        )
         print(f"Example usage: ")
-        print(f"loader = FAERSDataLoader(save_dir='data', start_year=2023, end_year=2023, start_quarter=1, end_quarter=4, debug=True)")
-        print(f"loader.get_data() # Returns the reac, drug, demo, outc, ther, indi dataframes")
-        
+        print(
+            f"loader = FAERSDataLoader(save_dir='data', start_year=2023, end_year=2023, start_quarter=1, end_quarter=4, debug=True)"
+        )
+        print(
+            f"loader.get_data() # Returns the reac, drug, demo, outc, ther, indi dataframes"
+        )
+
 
 def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
     """
@@ -108,130 +154,202 @@ def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
     Returns:
         pd.DataFrame (with preprocessed data)
     """
-    if type == 'reac':
+    if type == "reac":
         return preprocess_reac_df(df)
-    elif type == 'drug':
+    elif type == "drug":
         return preprocess_drug_df(df)
-    elif type == 'demo':
+    elif type == "demo":
         return preprocess_demo_df(df)
-    elif type == 'outc':
+    elif type == "outc":
         return preprocess_outc_df(df)
-    elif type == 'ther':
+    elif type == "ther":
         return preprocess_ther_df(df)
-    elif type == 'indi':
+    elif type == "indi":
         return preprocess_indi_df(df)
     else:
-        logger.error(f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}")
-        raise ValueError(f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}")
+        logger.error(
+            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}"
+        )
+        raise ValueError(
+            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}"
+        )
+
 
 def preprocess_drug_df(drug: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
-    drug = drug[['primaryid', 'caseid', 'role_cod', 'drugname', 'prod_ai', 'drug_seq', 'dechal', 'rechal']]
-    
-    if debug:
-        logger.debug(f"Starting number of reports in 'drug' file: {drug.shape[0]}") 
-    
-    drug = drug[drug['role_cod'] == 'PS']
-    if debug:
-        logger.debug(f"Number of reports in the 'drug' file where drug is the primary suspect: {drug.shape[0]}") 
+    drug = drug[
+        [
+            "primaryid",
+            "caseid",
+            "role_cod",
+            "drugname",
+            "prod_ai",
+            "drug_seq",
+            "dechal",
+            "rechal",
+        ]
+    ]
 
-    drug = drug[pd.notnull(drug['drugname'])]  # Drops Nulls
-    drug = drug[~drug['drugname'].isin(['unknown'])]  # Drops unknowns
-    
     if debug:
-        logger.debug(f"Number of reports in the 'drug' file after unknown/null drugs are removed: {drug.shape[0]}") 
-    
-    drug['drugname'] = drug['drugname'].str.strip().str.lower()  # Stips whitespace, Transforms to lowercase
-    drug['drugname'] = drug['drugname'].str.replace('\\', '/')  # Standardizes slashes to '/'
-    drug['drugname'] = drug['drugname'].map(
-        lambda x: x[:-1] if str(x).endswith(".") else x)  # Removes periods at the end of drug names
+        logger.debug(f"Starting number of reports in 'drug' file: {drug.shape[0]}")
 
-    drug['prod_ai'] = drug['prod_ai'].str.lower()
-    drug = drug.drop_duplicates(subset=['primaryid'], keep='first')
+    drug = drug[drug["role_cod"] == "PS"]
+    if debug:
+        logger.debug(
+            f"Number of reports in the 'drug' file where drug is the primary suspect: {drug.shape[0]}"
+        )
+
+    drug = drug[pd.notnull(drug["drugname"])]  # Drops Nulls
+    drug = drug[~drug["drugname"].isin(["unknown"])]  # Drops unknowns
+
+    if debug:
+        logger.debug(
+            f"Number of reports in the 'drug' file after unknown/null drugs are removed: {drug.shape[0]}"
+        )
+
+    drug["drugname"] = (
+        drug["drugname"].str.strip().str.lower()
+    )  # Stips whitespace, Transforms to lowercase
+    drug["drugname"] = drug["drugname"].str.replace(
+        "\\", "/"
+    )  # Standardizes slashes to '/'
+    drug["drugname"] = drug["drugname"].map(
+        lambda x: x[:-1] if str(x).endswith(".") else x
+    )  # Removes periods at the end of drug names
+
+    drug["prod_ai"] = drug["prod_ai"].str.lower()
+    drug = drug.drop_duplicates(subset=["primaryid"], keep="first")
 
     return drug
 
+
 def preprocess_reac_df(reac: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
-        logger.debug(f"Starting number of reports in 'reac' file: {reac.shape[0]}") 
+        logger.debug(f"Starting number of reports in 'reac' file: {reac.shape[0]}")
 
-    reac = reac[pd.notnull(reac['pt'])] # Drops Nulls
-    reac = reac[~reac['pt'].isin(['unknown'])]  # Drops unknowns
-    
+    reac = reac[pd.notnull(reac["pt"])]  # Drops Nulls
+    reac = reac[~reac["pt"].isin(["unknown"])]  # Drops unknowns
+
     if debug:
-        logger.debug(f"Number of reports in the 'reac' file after unknown/null reacs are removed: {reac.shape[0]}") 
+        logger.debug(
+            f"Number of reports in the 'reac' file after unknown/null reacs are removed: {reac.shape[0]}"
+        )
 
-    reac['pt'] = reac['pt'].str.strip().str.lower()  # Transforms to lowercase
-    reac['pt'] = reac['pt'].map(
-        lambda x: x[:-1] if str(x).endswith(".") else x)  # Removes periods at the end of drug names
+    reac["pt"] = reac["pt"].str.strip().str.lower()  # Transforms to lowercase
+    reac["pt"] = reac["pt"].map(
+        lambda x: x[:-1] if str(x).endswith(".") else x
+    )  # Removes periods at the end of drug names
 
     return reac
 
+
 def preprocess_demo_df(demo: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
-        logger.debug(f"Starting number of reports in 'demo' file: {demo.shape[0]}") 
+        logger.debug(f"Starting number of reports in 'demo' file: {demo.shape[0]}")
 
-    demo = demo[['primaryid', 'caseid', 'caseversion', 'age_cod', 'age', 'sex', 'wt', 'fda_dt', 'event_dt']] 
-    
-    # If multiple reports have the same primary id and case id, keep the most recent one 
-    demo = demo.sort_values(by=['caseid', 'fda_dt', 'primaryid'], ascending=[True, False, False])
-    demo = demo.drop_duplicates(subset=['caseid'], keep='first')
-    
+    demo = demo[
+        [
+            "primaryid",
+            "caseid",
+            "caseversion",
+            "age_cod",
+            "age",
+            "sex",
+            "wt",
+            "fda_dt",
+            "event_dt",
+        ]
+    ]
+
+    # If multiple reports have the same primary id and case id, keep the most recent one
+    demo = demo.sort_values(
+        by=["caseid", "fda_dt", "primaryid"], ascending=[True, False, False]
+    )
+    demo = demo.drop_duplicates(subset=["caseid"], keep="first")
+
     if debug:
-        logger.debug(f"Number of reports in the 'demo' file after duplicate primary/case id combos are removed: {demo.shape[0]}") 
+        logger.debug(
+            f"Number of reports in the 'demo' file after duplicate primary/case id combos are removed: {demo.shape[0]}"
+        )
 
-    demo = demo[pd.notnull(demo['age'])]
-    demo = demo[demo.age_cod != 'dec'].reset_index(drop=True)
-    demo['age'] = demo['age'].apply(pd.to_numeric, errors='coerce')
-    demo['age'] = np.where(demo['age_cod'] == 'MON', demo['age'] * 1 / 12, demo['age'])  # mounth
-    demo['age'] = np.where(demo['age_cod'] == 'WK', demo['age'] * 1 / 52, demo['age'])  # week
-    demo['age'] = np.where(demo['age_cod'] == 'DY', demo['age'] * 1 / 365, demo['age'])  # day
-    demo['age'] = np.where(demo['age_cod'] == 'HR', demo['age'] * 1 / 8760, demo['age'])  # hour
-    demo = demo.drop(['age_cod'], axis=1)
+    demo = demo[pd.notnull(demo["age"])]
+    demo = demo[demo.age_cod != "dec"].reset_index(drop=True)
+    demo["age"] = demo["age"].apply(pd.to_numeric, errors="coerce")
+    demo["age"] = np.where(
+        demo["age_cod"] == "MON", demo["age"] * 1 / 12, demo["age"]
+    )  # mounth
+    demo["age"] = np.where(
+        demo["age_cod"] == "WK", demo["age"] * 1 / 52, demo["age"]
+    )  # week
+    demo["age"] = np.where(
+        demo["age_cod"] == "DY", demo["age"] * 1 / 365, demo["age"]
+    )  # day
+    demo["age"] = np.where(
+        demo["age_cod"] == "HR", demo["age"] * 1 / 8760, demo["age"]
+    )  # hour
+    demo = demo.drop(["age_cod"], axis=1)
 
     if debug:
-        logger.debug(f"Number of reports in the 'demo' file after unknown/invalid ages are removed: {demo.shape[0]}") 
-
+        logger.debug(
+            f"Number of reports in the 'demo' file after unknown/invalid ages are removed: {demo.shape[0]}"
+        )
 
     return demo
 
-def preprocess_outc_df(outc: pd.DataFrame, debug: bool = False) -> pd.DataFrame: 
-    if debug:
-        logger.debug(f"Starting number of reports in 'outc' file: {outc.shape[0]}") 
 
-    outc['outc_number'] = outc.groupby(['primaryid', 'caseid']).cumcount() + 1
-    
-    outc_pivot = outc.pivot(index=['primaryid', 'caseid'], 
-                        columns='outc_number', 
-                        values='outc_cod')
-    
+def preprocess_outc_df(outc: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
+    if debug:
+        logger.debug(f"Starting number of reports in 'outc' file: {outc.shape[0]}")
+
+    outc["outc_number"] = outc.groupby(["primaryid", "caseid"]).cumcount() + 1
+
+    outc_pivot = outc.pivot(
+        index=["primaryid", "caseid"], columns="outc_number", values="outc_cod"
+    )
+
     # Renames the columns to outc_cod1, outc_cod2, ...
-    outc_pivot.columns = [f'outc_cod{i}' for i in outc_pivot.columns]
+    outc_pivot.columns = [f"outc_cod{i}" for i in outc_pivot.columns]
     outc_final = outc_pivot.reset_index()
-    
+
     return outc_final
+
 
 def preprocess_ther_df(ther: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
-        logger.debug(f"Starting number of reports in 'ther' file: {ther.shape[0]}") 
+        logger.debug(f"Starting number of reports in 'ther' file: {ther.shape[0]}")
 
-    ther = ther[['primaryid', 'caseid', 'start_dt', 'dsg_drug_seq']] 
+    ther = ther[["primaryid", "caseid", "start_dt", "dsg_drug_seq"]]
 
-    ther = ther.rename(columns={'dsg_drug_seq': 'drug_seq'})
+    ther = ther.rename(columns={"dsg_drug_seq": "drug_seq"})
 
     return ther
 
+
 def preprocess_indi_df(indi: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
-        logger.debug(f"Starting number of reports in 'indi' file: {indi.shape[0]}") 
+        logger.debug(f"Starting number of reports in 'indi' file: {indi.shape[0]}")
 
-    indi = indi.rename(columns={'indi_drug_seq': 'drug_seq'})
+    indi = indi.rename(columns={"indi_drug_seq": "drug_seq"})
 
     return indi
 
 
-def load_faers_data(save_dir: str, start_year: int, end_year: int, start_quarter: int, end_quarter: int, debug: bool = False):
+def load_faers_data(
+    save_dir: str,
+    start_year: int,
+    end_year: int,
+    start_quarter: int,
+    end_quarter: int,
+    debug: bool = False,
+):
     """
     Load the FAERS data for the given start and end years and quarters.
     """
-    loader = FAERSDataLoader(start_year=start_year, end_year=end_year, start_quarter=start_quarter, end_quarter=end_quarter, save_dir=save_dir, debug=debug)
+    loader = FAERSDataLoader(
+        start_year=start_year,
+        end_year=end_year,
+        start_quarter=start_quarter,
+        end_quarter=end_quarter,
+        save_dir=save_dir,
+        debug=debug,
+    )
     return loader.get_data()

@@ -1,6 +1,11 @@
 from typing import List
 from loguru import logger
-from src.utils.supported_quarters import get_available_online_quarters, get_available_downloaded_quarters, get_available_processed_quarters
+from src.utils.supported_quarters import (
+    get_available_online_quarters,
+    get_available_downloaded_quarters,
+    get_available_processed_quarters,
+)
+
 
 class ParseQuarters:
     """
@@ -12,7 +17,15 @@ class ParseQuarters:
         end_quarter: int = 4
         debug: bool = False
     """
-    def __init__(self, start_year: int = None, end_year: int = None, start_quarter: int = 1, end_quarter: int = 4, debug: bool = False):
+
+    def __init__(
+        self,
+        start_year: int = None,
+        end_year: int = None,
+        start_quarter: int = 1,
+        end_quarter: int = 4,
+        debug: bool = False,
+    ):
         self.start_year = start_year
         self.end_year = end_year
         self.start_quarter = start_quarter
@@ -31,7 +44,7 @@ class ParseQuarters:
         if debug:
             logger.debug(f"Parsed quarters: {quarters}")
         return quarters
-    
+
     def basic_validation(self):
         """
         Validate the input parameters
@@ -55,13 +68,13 @@ class ParseQuarters:
             logger.error("Start quarter must be before end quarter")
             raise ValueError("Start quarter must be before end quarter")
         return None
-    
+
     def get_quarters(self) -> List[str]:
         """
         Get the list of parsed quarter strings
         """
         return self.parsed_quarters
-    
+
     def check_available_online(self) -> None:
         """
         Check if the quarters are available online
@@ -72,9 +85,15 @@ class ParseQuarters:
             if quarter not in available_online_quarters:
                 missing_quarters.append(quarter)
         if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)")
-            raise ValueError(f"Quarters {missing_quarters} not found in {available_online_quarters.keys()}")
-        logger.info(f"All quarters {self.parsed_quarters} found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)")
+            logger.error(
+                f"Quarters {missing_quarters} not found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)"
+            )
+            raise ValueError(
+                f"Quarters {missing_quarters} not found in {available_online_quarters.keys()}"
+            )
+        logger.info(
+            f"All quarters {self.parsed_quarters} found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)"
+        )
 
     def check_available_downloaded(self, save_dir: str = "data") -> None:
         """
@@ -86,9 +105,15 @@ class ParseQuarters:
             if quarter not in available_downloaded_quarters:
                 missing_quarters.append(quarter)
         if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found in {save_dir}/faers_reports")
-            raise ValueError(f"Quarters {missing_quarters} not found in {save_dir}/faers_reports")
-        logger.info(f"All quarters {self.parsed_quarters} found in {save_dir}/faers_reports")
+            logger.error(
+                f"Quarters {missing_quarters} not found in {save_dir}/faers_reports"
+            )
+            raise ValueError(
+                f"Quarters {missing_quarters} not found in {save_dir}/faers_reports"
+            )
+        logger.info(
+            f"All quarters {self.parsed_quarters} found in {save_dir}/faers_reports"
+        )
 
     def check_available_processed(self, save_dir: str = "data") -> None:
         """
@@ -100,6 +125,12 @@ class ParseQuarters:
             if quarter not in available_processed_quarters:
                 missing_quarters.append(quarter)
         if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found in {save_dir}/processed")
-            raise ValueError(f"Quarters {missing_quarters} not found in {save_dir}/processed")
-        logger.info(f"All quarters {self.parsed_quarters} found in {save_dir}/processed")
+            logger.error(
+                f"Quarters {missing_quarters} not found in {save_dir}/processed"
+            )
+            raise ValueError(
+                f"Quarters {missing_quarters} not found in {save_dir}/processed"
+            )
+        logger.info(
+            f"All quarters {self.parsed_quarters} found in {save_dir}/processed"
+        )

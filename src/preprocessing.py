@@ -38,7 +38,7 @@ def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
 def load_rxnorm_mapping(mapping_path, drug_df):
 
     # Load full mapping
-    print(f"Loading RxNorm mapping from: {mapping_path}")
+    logger.info(f"Loading RxNorm mapping from: {mapping_path}")
     mapping = pd.read_csv(mapping_path)
 
     # Get unique drugnames from FAERS drug table for given time frame
@@ -182,18 +182,15 @@ def preprocess_demo_df(demo: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
 
 
 def preprocess_outc_df(outc: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
+    logger.warning("Updated outc method")
     if debug:
         logger.debug(f"Starting number of reports in 'outc' file: {outc.shape[0]}")
 
-    outc["outc_number"] = outc.groupby(["primaryid", "caseid"]).cumcount() + 1
-
-    outc_pivot = outc.pivot(
-        index=["primaryid", "caseid"], columns="outc_number", values="outc_cod"
+    outc_final = (
+        outc.groupby(["primaryid", "caseid"])["outc_cod"]
+        .apply(lambda x: "; ".join(x.dropna().unique()))
+        .reset_index()
     )
-
-    # Renames the columns to outc_cod1, outc_cod2, ...
-    outc_pivot.columns = [f"outc_cod{i}" for i in outc_pivot.columns]
-    outc_final = outc_pivot.reset_index()
 
     return outc_final
 

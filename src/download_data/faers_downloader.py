@@ -21,7 +21,7 @@ import argparse
 from pathlib import Path
 from loguru import logger
 from src.utils.supported_quarters import get_available_online_quarters, get_available_raw_quarters, get_available_processed_quarters
-from src.download_data.ParseQuarters import ParseQuarters
+from src.download_data.parse_quarters import ParseQuarters
 
 
 def flatten_directory(directory_path: str, debug: bool = False):

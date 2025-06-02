@@ -11,7 +11,7 @@ __pycache__
 
 # FAERS Data
 **/saved_data/
-data/raw_faers/
+data/faers_reports/
 data/processed_faers/
 
 # Misc

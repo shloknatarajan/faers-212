@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 
 """
-Merging the dataframes from raw_faers/{quarter} into a single dataframe.
+Merging the dataframes from faers_reports/{quarter} into a single dataframe.
 
 This will eventually need to be moved into a class / preprocessing pipeline 
 as the number of prepreocessing steps grows.
@@ -14,55 +14,55 @@ Need to add:
 - deduplicatin
 - drug normalization
 """
-from src.utils import get_raw_quarters, available_processed_quarters, format_quarter
+from src.utils import get_available_downloaded_quarters, available_processed_quarters, format_quarter
 
 def load_raw_data(report_quarter: str) -> pd.DataFrame:
     """
-    Load the raw data from the raw_faers/{quarter} directory
+    Load the raw data from the faers_reports/{quarter} directory
     """
-    if report_quarter not in get_raw_quarters():
+    if report_quarter not in get_available_downloaded_quarters():
         raise ValueError(
-            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}"
+            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_available_downloaded_quarters()}"
         )
     # Load the report data
     # DEMO
     demo_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"DEMO{format_quarter(report_quarter)}.txt"
     )
 
     # DRUG
     drug_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"DRUG{format_quarter(report_quarter)}.txt"
     )
 
     # OUTCOME
     outcome_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"OUTC{format_quarter(report_quarter)}.txt"
     )
 
     # REACTION
     reaction_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"REAC{format_quarter(report_quarter)}.txt"
     )
 
     # RPSR
     rpsr_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"RPSR{format_quarter(report_quarter)}.txt"
     )
 
     # THERAPY
     therapy_file = (
-        Path("data/raw_faers")
+        Path("data/faers_reports")
         / report_quarter
         / f"THER{format_quarter(report_quarter)}.txt"
     )
@@ -104,9 +104,9 @@ def merge_reports(report_quarter: str, overwrite: bool = False) -> pd.DataFrame:
     """
     Merge the raw dataframes into a single dataframe
     """
-    if report_quarter not in get_raw_quarters():
+    if report_quarter not in get_available_downloaded_quarters():
         raise ValueError(
-            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_raw_quarters()}"
+            f"Report quarter {report_quarter} is not supported. Supported report quarters are: {get_available_downloaded_quarters()}"
         )
     if report_quarter in available_processed_quarters() and not overwrite:
         logger.info(f"Report quarter {report_quarter} already processed. Skipping...")
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.quarters == "all":
-        for quarter in get_raw_quarters():
+        for quarter in get_available_downloaded_quarters():
             merge_reports(quarter)
     else:
         for quarter in args.quarters:

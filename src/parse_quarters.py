@@ -1,6 +1,6 @@
 from typing import List
 from loguru import logger
-from src.utils.supported_quarters import get_available_online_quarters, get_available_raw_quarters, get_available_processed_quarters
+from src.utils.supported_quarters import get_available_online_quarters, get_available_downloaded_quarters, get_available_processed_quarters
 
 class ParseQuarters:
     """
@@ -76,31 +76,30 @@ class ParseQuarters:
             raise ValueError(f"Quarters {missing_quarters} not found in {available_online_quarters.keys()}")
         logger.info(f"All quarters {self.parsed_quarters} found on FAERS Download Page (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html)")
 
-    def check_available_raw(self, data_dir: str = "data") -> None:
+    def check_available_downloaded(self, save_dir: str = "data") -> None:
         """
-        Check if the quarters are available in the raw data directory
+        Check if the quarters are available in the save_dir/faers_reports directory
         """
         missing_quarters = []
-        available_raw_quarters = get_available_raw_quarters(data_dir)
+        available_downloaded_quarters = get_available_downloaded_quarters(save_dir)
         for quarter in self.parsed_quarters:
-            if quarter not in available_raw_quarters:
+            if quarter not in available_downloaded_quarters:
                 missing_quarters.append(quarter)
         if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found in {data_dir}/raw_faers")
-            raise ValueError(f"Quarters {missing_quarters} not found in {data_dir}/raw_faers")
-        logger.info(f"All quarters {self.parsed_quarters} found in {data_dir}/raw_faers")
+            logger.error(f"Quarters {missing_quarters} not found in {save_dir}/faers_reports")
+            raise ValueError(f"Quarters {missing_quarters} not found in {save_dir}/faers_reports")
+        logger.info(f"All quarters {self.parsed_quarters} found in {save_dir}/faers_reports")
 
-
-    def check_available_processed(self, data_dir: str = "data") -> None:
+    def check_available_processed(self, save_dir: str = "data") -> None:
         """
         Check if the quarters are available in the processed data directory
         """
         missing_quarters = []
-        available_processed_quarters = get_available_processed_quarters(data_dir)
+        available_processed_quarters = get_available_processed_quarters(save_dir)
         for quarter in self.parsed_quarters:
             if quarter not in available_processed_quarters:
                 missing_quarters.append(quarter)
         if missing_quarters:
-            logger.error(f"Quarters {missing_quarters} not found in {data_dir}/processed")
-            raise ValueError(f"Quarters {missing_quarters} not found in {data_dir}/processed")
-        logger.info(f"All quarters {self.parsed_quarters} found in {data_dir}/processed")
+            logger.error(f"Quarters {missing_quarters} not found in {save_dir}/processed")
+            raise ValueError(f"Quarters {missing_quarters} not found in {save_dir}/processed")
+        logger.info(f"All quarters {self.parsed_quarters} found in {save_dir}/processed")

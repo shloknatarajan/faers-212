@@ -17,10 +17,9 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from loguru import logger
 from typing import List
-import argparse
 from pathlib import Path
 from loguru import logger
-from src.utils.supported_quarters import get_available_online_quarters, get_available_raw_quarters, get_available_processed_quarters
+from src.utils.supported_quarters import get_available_online_quarters, get_available_downloaded_quarters, get_available_processed_quarters
 from src.parse_quarters import ParseQuarters
 
 
@@ -77,7 +76,6 @@ def flatten_directory(directory_path: str, debug: bool = False):
             except OSError as e:
                 logger.error(f"Error removing directory {root}: {e}")
 
-
 class FAERSDownloader:
     """
     Class for downloading FAERS data from the FDA website.
@@ -85,20 +83,21 @@ class FAERSDownloader:
     """
     def __init__(self, save_dir: str = "data", debug: bool = False):
         self.debug = debug
-        self.save_dir = Path(save_dir).joinpath("raw_faers")
-        self.available_online_quarters = get_available_online_quarters()
+        self.base_save_dir = Path(save_dir)
+        self.save_dir = self.base_save_dir.joinpath("faers_reports")
     
     def help(self):
         """
         List all available online quarters and print example message
         """
-        print(f"Available online quarters: {self.available_online_quarters.keys()}")
-        print(f"Available local unprocessed quarters: {get_available_raw_quarters(self.save_dir)}")
-        print(f"Available local processed quarters: {get_available_processed_quarters(self.save_dir)}")
+        print(f"Available online quarters: {get_available_online_quarters()}")
+        print(f"Available locally downloaded quarters: {get_available_downloaded_quarters(self.base_save_dir)}")
         print(f"Example usage: ")
         print(f"downloader = FAERSDownloader()")
         print(f"downloader.download_quarters(start_year=2023, end_year=2023, start_quarter=1, end_quarter=4) # Download all quarters for 2023")
         print(f"downloader.download_quarter(quarter='2023Q1') # Download a single quarter")
+        print(f"You can alternatively use download_faers_quarters():")
+        print(f"download_faers_quarters(start_year=2023, end_year=2023, start_quarter=1, end_quarter=4) # Download all quarters for 2023")
     
     def download_quarters(self, start_year: int = None, end_year: int = None, start_quarter: int = 1, end_quarter: int = 4, overwrite: bool = False, remove_pdfs: bool = True):
         """
@@ -111,12 +110,16 @@ class FAERSDownloader:
             overwrite: bool = False
             remove_pdfs: bool = True
         """
+        # Parse the quarters and make sure they are available online
         parsed_quarters = ParseQuarters(start_year, end_year, start_quarter, end_quarter, debug=self.debug)
         parsed_quarters.check_available_online()
         parsed_quarters = parsed_quarters.get_quarters()
-        
+
+        # Get the available online quarters
+        self.available_online_quarters = get_available_online_quarters()
+
+        logger.info(f"Downloading {len(parsed_quarters)} quarters")
         for quarter in tqdm(parsed_quarters):
-            logger.info(f"Downloading {quarter}")
             self.download_quarter(quarter, overwrite=overwrite, remove_pdfs=remove_pdfs)
 
     def download_quarter(self, quarter: str, overwrite: bool = False, remove_pdfs: bool = True):
@@ -140,6 +143,8 @@ class FAERSDownloader:
             else:
                 logger.warning(f"Overwriting {quarter}")
 
+        logger.info(f"Downloading {quarter}")
+        
         # Create the quarter folder if it doesn't exist
         os.makedirs(os.path.join(self.save_dir, quarter), exist_ok=True)
 
@@ -175,19 +180,28 @@ class FAERSDownloader:
                     os.remove(os.path.join(quarter_dir, file))
             logger.info(f"Removed all pdf files")
 
-def download_quarter(quarter: str, save_dir: str = "data", overwrite: bool = False, remove_pdfs: bool = True, debug: bool = False):
+def download_single_faers_quarter(quarter: str, save_dir: str = "data", overwrite: bool = False, remove_pdfs: bool = True, debug: bool = False):
     """
     Download a single quarter of FAERS data
     """
-    # Convert quarter to start year, start quarter, end year, end quarter
-    start_year = int(quarter[:2])
-    start_quarter = int(quarter[2])
-    end_year = int(quarter[:2])
-    end_quarter = int(quarter[2])
+    downloader = FAERSDownloader(save_dir=save_dir, debug=debug)
+    downloader.download_quarter(quarter, overwrite, remove_pdfs)
 
+def download_faers_quarters(start_year: int = None, end_year: int = None, start_quarter: int = 1, end_quarter: int = 4, save_dir: str = "data", overwrite: bool = False, remove_pdfs: bool = True, debug: bool = False):
+    """
+    Download a range of quarters of FAERS data
+
+    Args:
+        start_year: int = None
+        end_year: int = None
+        start_quarter: int = 1
+        end_quarter: int = 4
+        save_dir: str = "data"
+        overwrite: bool = False
+        remove_pdfs: bool = True
+        debug: bool = False
+    """
     downloader = FAERSDownloader(save_dir=save_dir, debug=debug)
     downloader.download_quarters(start_year, end_year, start_quarter, end_quarter, overwrite, remove_pdfs)
-
-
     
     

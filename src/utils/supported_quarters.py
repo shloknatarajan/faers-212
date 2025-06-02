@@ -8,14 +8,16 @@ faers_download_page = [
     "https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html"
 ]
 
-def get_available_raw_quarters(save_dir: str = "data") -> List[str]:
+def get_available_downloaded_quarters(save_dir: str = "data") -> List[str]:
     """
-    Checks the quarters in data/raw_faers and returns a list of the supported quarters.
+    Checks the quarters in data/faers_reports and returns a list of the supported quarters.
     """
     supported_quarters = []
-    for folder in Path(save_dir).joinpath("raw_faers").iterdir():
+    for folder in Path(save_dir).joinpath("faers_reports").iterdir():
         if folder.is_dir():
             supported_quarters.append(folder.name)
+    # Sort the quarters
+    supported_quarters.sort()
     return supported_quarters
 
 
@@ -30,7 +32,7 @@ def get_available_processed_quarters(save_dir: str = "data") -> List[str]:
     return supported_quarters
 
 
-def format_quarter(quarter_string: str) -> str:
+def convert_quarter_file_str(quarter_string: str) -> str:
     """
     Convert a quarter string from format 'YYYYQN' to 'YYQN'
 

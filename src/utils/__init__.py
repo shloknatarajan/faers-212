@@ -1,1 +1,1 @@
-from .supported_quarters import get_available_raw_quarters, get_available_processed_quarters, format_quarter
+from .supported_quarters import get_available_downloaded_quarters, get_available_processed_quarters, format_quarter

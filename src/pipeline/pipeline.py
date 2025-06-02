@@ -65,7 +65,7 @@ class FAERSData:
         Create the working dataframe from the quarters param
         1. Check if the dataframe exists in the data/processed_faers/ directory
         2. If it does, load the dataframes and merge them
-        3. If it doesn't, check if the raw dataframes exist in the data/raw_faers/ directory
+        3. If it doesn't, check if the raw dataframes exist in the data/faers_reports/ directory
         4. If they do, merge them and save the processed dataframe to the data/processed_faers/ directory
         5. If they don't, raise an error
         """

@@ -80,38 +80,24 @@ def filter_by_age(merged_df, min_age_yrs, max_age_yrs):
     return filtered_df
 
 #top indications 
-def extract_top_indications(merged_df, drug_df, indi_df, top_n=10):
-    
+def extract_top_indications(merged_df, top_n=10):
     if 'indi_pt' not in merged_df.columns:
         print("Warning: 'indi_pt' column not found, cannot extract top indications")
         return None
     
     # Extract top indications
     top_indi = merged_df['indi_pt'].value_counts().head(top_n)
-    top_indi_values = top_indi.index.tolist()
     
     print(f"Top {top_n} indications:")
     print(top_indi)
     
-    # Remove "Product used for unknown indication" if present
-    if 'Product used for unknown indication' in top_indi_values:
-        top_indi_values.remove('Product used for unknown indication')
-
-    # Find matching rows in indications data
-    if indi_df is not None:
-        matching_rows = indi_df[indi_df['indi_pt'].isin(top_indi_values)]
-        
-        # Merge with drug data
-        required_cols = ['primaryid', 'caseid', 'drug_seq']
-        missing_cols = [col for col in required_cols if col not in drug_df.columns or col not in matching_rows.columns]
-        if not missing_cols:
-            query_indications_df = pd.merge(drug_df, matching_rows, on=['primaryid', 'caseid', 'drug_seq'], how='inner')
-            print(f"\nNumber of reports matching top indications: {query_indications_df.shape[0]}")
-            return query_indications_df
+    # Filter to only include reports with top indications
+    filtered_df = merged_df[merged_df['indi_pt'].isin(top_indi.index)]
+    filtered_df = filtered_df[filtered_df['indi_pt'] != 'Product used for unknown indication']
     
-    return None
+    print(f"\nNumber of reports matching top indications: {filtered_df.shape[0]}")
+    return filtered_df
 
-#all analysis steps
 def run_full_analysis(data_dir, query_drug, min_age_yrs=0, max_age_yrs=100, top_n=10):
 
     print(f"Starting analysis for drug: {query_drug}")
@@ -172,7 +158,7 @@ def run_full_analysis(data_dir, query_drug, min_age_yrs=0, max_age_yrs=100, top_
         print("\n" + "="*50)
         print("TOP INDICATIONS ANALYSIS")
         print("="*50)
-        query_indications_df = extract_top_indications(merged_df, drug_df, indi_df, top_n)
+        query_indications_df = extract_top_indications(merged_df, top_n)
     
     print(f"\nFinal dataset shape: {merged_df.shape}")
     print("Analysis complete")

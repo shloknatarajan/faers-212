@@ -1,4 +1,4 @@
-from src.data_loader import FAERSDataLoader
+from src.data_loader import FAERSData
 
 
 class Experiment:
@@ -11,27 +11,36 @@ class Experiment:
     Would make sense to accept a FAERSData class instead of a bunch of dataframes
     """
 
-    def __init__(self, drug_name: str, ae_term: str):
-        self.drug_name = drug_name
-        self.ae_term = ae_term
-        self.working_df = None
+    def __init__(self, faers_data: FAERSData):
+        self.faers_data = faers_data.copy()
         self.contingency_table = None
         self.original_data = None
+        self.drug_term = None
+        self.ae_term = None
 
-    def set_data(self):
-        pass
+    def set_drug(self, drug_term: str):
+        """
+        Set the drug term for the experiment
+        """
+        self.drug_term = drug_term
+
+    def set_ae(self, ae_term: str):
+        """
+        Set the AE term for the experiment
+        """
+        self.ae_term = ae_term
 
     def filter_by_drug_name(self):
         """
         Filter the working dataframe by the drug name
         """
-        pass
+        self.working_df = pt_filter(self.faers_data.drug_data, [self.drug_term])
 
-    def filter_by_ae_term(self):
+    def filter_by_preferred_term(self):
         """
-        Filter the working dataframe by the AE term
+        Filter the working dataframe by the preferred term
         """
-        pass
+        self.working_df = pt_filter(self.working_df, [self.ae_term])
 
     def create_contingency_table(self):
         """

@@ -12,7 +12,8 @@ __pycache__
 # FAERS Data
 **/saved_data/
 data/faers_reports/
-data/processed_faers/
+data/meddra/raw
+data/cache/
 
 # Misc
 **/.DS_Store

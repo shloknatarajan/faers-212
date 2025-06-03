@@ -9,7 +9,7 @@ from src.load_data.load_report import load_report
 from loguru import logger
 
 
-def filter_by_any_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
+def filter_by_any_pt_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
     """
     Filter DataFrame to only include rows that contain ANY of the specified terms.
 
@@ -24,7 +24,7 @@ def filter_by_any_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
     return df[df["pt"].apply(lambda term_list: any(t in terms_set for t in term_list))]
 
 
-def filter_by_all_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
+def filter_by_all_pt_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
     """
     Filter DataFrame to only include rows that contain ALL of the specified terms.
 
@@ -40,14 +40,13 @@ def filter_by_all_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
 
     return df[mask]
 
-
-def search_meddra(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
+def pt_filter(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
     """
-    Search for MedDRA terms in a FAERS report
+    Filter for MedDRA Preferred Terms in a FAERS report
     """
     # Get all rows where the column 'pt' contains any of the preferred terms
     logger.info(f"Searching for {preferred_terms} in {report.shape[0]} rows")
-    matching_rows = filter_by_all_terms(report, preferred_terms)
+    matching_rows = filter_by_all_pt_terms(report, preferred_terms)
 
     return matching_rows
 
@@ -66,11 +65,11 @@ def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
     return [llt_to_soc[term] for term in meddra_terms]
 
 
-def search_system_organ_classes(
+def soc_filter(
     report: pd.DataFrame, system_organ_classes: List[str]
 ) -> pd.DataFrame:
     """
-    Search by MedDRA system organ classes
+    Filter for MedDRA System Organ Classes in a FAERS report
     Args:
         report: FAERS report
         system_organ_classes: List of system organ classes by
@@ -85,5 +84,5 @@ if __name__ == "__main__":
     report_quarter = "25Q1"
     preferred_terms = ["Palmar-plantar erythrodysaesthesia syndrome"]
     report = load_report(report_quarter)
-    matching_rows = search_meddra(report, preferred_terms)
+    matching_rows = pt_filter(report, preferred_terms)
     print(matching_rows)

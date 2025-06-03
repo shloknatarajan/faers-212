@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from loguru import logger
-
+from src.aggregations import aggregate_faers_table
 
 def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
     """
@@ -26,12 +26,14 @@ def preprocess(df: pd.DataFrame, type: str) -> pd.DataFrame:
         return preprocess_ther_df(df)
     elif type == "indi":
         return preprocess_indi_df(df)
+    elif type == "rpsr":
+        return preprocess_rpsr_df(df)
     else:
         logger.error(
-            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}"
+            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi', 'rpsr']}"
         )
         raise ValueError(
-            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi']}"
+            f"Invalid type: {type}. Must be one of {['reac', 'drug', 'demo', 'outc', 'ther', 'indi', 'rpsr']}"
         )
 
 
@@ -182,29 +184,37 @@ def preprocess_demo_df(demo: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
 
 
 def preprocess_outc_df(outc: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
-    logger.warning("Updated outc method")
     if debug:
         logger.debug(f"Starting number of reports in 'outc' file: {outc.shape[0]}")
 
-    outc_final = (
-        outc.groupby(["primaryid", "caseid"])["outc_cod"]
-        .apply(lambda x: "; ".join(x.dropna().unique()))
-        .reset_index()
-    )
+    outcomes_agg = aggregate_faers_table(outc, 'outc', debug)
 
-    return outc_final
+    # Map to human-readable outcomes
+    outcome_labels = {
+        'DE': 'Death',
+        'LT': 'Life-Threatening',
+        'HO': 'Hospitalization',
+        'DS': 'Disability',
+        'CA': 'Congenital Anomaly',
+        'RI': 'Required Intervention',
+        'OT': 'Other Serious'
+    }
+
+    # Map each code in the list to its human-readable label
+    outcomes_agg['outc_label'] = outcomes_agg['outc_cod'].apply(lambda codes: [outcome_labels[code] for code in codes])
+
+    return outcomes_agg
 
 
 def preprocess_ther_df(ther: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
         logger.debug(f"Starting number of reports in 'ther' file: {ther.shape[0]}")
 
-    ther = ther[["primaryid", "caseid", "start_dt", "dsg_drug_seq"]]
+    ther = ther[['primaryid', 'caseid', 'start_dt', 'dsg_drug_seq']] 
 
-    ther = ther.rename(columns={"dsg_drug_seq": "drug_seq"})
+    ther = ther.rename(columns={'dsg_drug_seq': 'drug_seq'})
 
     return ther
-
 
 def preprocess_indi_df(indi: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     if debug:
@@ -213,3 +223,18 @@ def preprocess_indi_df(indi: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
     indi = indi.rename(columns={"indi_drug_seq": "drug_seq"})
 
     return indi
+
+def preprocess_rpsr_df(rpsr: pd.DataFrame, debug: bool = False) -> pd.DataFrame:
+    if debug:
+        logger.debug(f"Starting number of reports in 'rpsr' file: {rpsr.shape[0]}")
+
+    rpsr_processed = rpsr.copy()
+
+    # map to human-readable reporter codes
+    rpsr_processed['rpsr_label'] = rpsr_processed['rpsr_cod'].map({
+        'CSM': 'Consumer',
+        'HP': 'Health Professional',
+        'OT': 'Other'
+    })
+
+    return rpsr_processed

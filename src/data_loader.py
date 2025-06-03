@@ -336,11 +336,11 @@ def load_single_quarter(quarter: str, save_dir: str):
         return reac, drug, demo, outc, ther, indi, rpsr
 
 def load_faers_data(
-    save_dir: str,
     start_year: int,
     end_year: int,
     start_quarter: int,
     end_quarter: int,
+    save_dir: str = "data",
     debug: bool = False,
     cache: bool = True,
 ):

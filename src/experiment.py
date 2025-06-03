@@ -1,7 +1,6 @@
 from src.data_loader import FAERSData
-from src.meddra_search import pt_filter
 from src.drug_search import filter_by_drug_name
-
+from src.meddra_search import filter_by_preferred_terms
 class FilterExperiment:
     """
     Experiment class to manage a search run. Each experiment instance is a single search run.

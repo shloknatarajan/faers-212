@@ -5,7 +5,6 @@ Search for MedDRA terms in a FAERS report
 import pandas as pd
 import pickle
 from typing import List
-from src.load_data.load_report import load_report
 from loguru import logger
 
 
@@ -42,13 +41,16 @@ def filter_by_all_pt_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
 
 def filter_by_preferred_terms(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
     """
-    Filter for MedDRA Preferred Terms in a FAERS report
+    Filter for MedDRA Preferred Terms in a FAERS report. PTs are contained in REAC
     """
     # Get all rows where the column 'pt' contains any of the preferred terms
     logger.info(f"Searching for {preferred_terms} in {report.shape[0]} rows")
+    starting_rows = report.shape[0]
     matching_rows = filter_by_all_pt_terms(report, preferred_terms)
-
-    return matching_rows
+    logger.info(f"Number of rows after filtering by preferred terms: {matching_rows.shape[0]}")
+    logger.info(f"Number of rows removed: {starting_rows - matching_rows.shape[0]}")
+    ending_rows = matching_rows.shape[0]
+    return matching_rows, starting_rows, ending_rows
 
 
 def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
@@ -65,24 +67,17 @@ def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
     return [llt_to_soc[term] for term in meddra_terms]
 
 
-def filter_by_soc(
-    report: pd.DataFrame, system_organ_classes: List[str]
-) -> pd.DataFrame:
-    """
-    Filter for MedDRA System Organ Classes in a FAERS report
-    Args:
-        report: FAERS report
-        system_organ_classes: List of system organ classes by
-    Returns:
-        DataFrame of rows where the system organ class is in the list
-    """
-    logger.error("Not implemented")
-    pass
+# def filter_by_soc(
+#     report: pd.DataFrame, system_organ_classes: List[str]
+# ) -> pd.DataFrame:
+#     """
+#     Filter for MedDRA System Organ Classes in a FAERS report
+#     Args:
+#         report: FAERS report
+#         system_organ_classes: List of system organ classes by
+#     Returns:
+#         DataFrame of rows where the system organ class is in the list
+#     """
+#     logger.error("Not implemented")
+#     pass
 
-
-if __name__ == "__main__":
-    report_quarter = "25Q1"
-    preferred_terms = ["Palmar-plantar erythrodysaesthesia syndrome"]
-    report = load_report(report_quarter)
-    matching_rows = filter_by_preferred_terms(report, preferred_terms)
-    print(matching_rows)

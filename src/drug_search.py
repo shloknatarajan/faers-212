@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import argparse
 import pandas as pd
 import sys
@@ -76,7 +75,15 @@ def merge_with_indications(merged_df, indi_df):
 
 
 def filter_by_age(merged_df, min_age_yrs, max_age_yrs):
-
+    """
+    Filter for age range in a FAERS report
+    Args:
+        merged_df: DataFrame of merged drug and demographics data
+        min_age_yrs: Minimum age in years
+        max_age_yrs: Maximum age in years
+    Returns:
+        DataFrame of rows where the age is in the range [min_age_yrs, max_age_yrs]
+    """
     filtered_df = merged_df[
         (merged_df['age'] >= min_age_yrs) & 
         (merged_df['age'] <= max_age_yrs)
@@ -114,9 +121,9 @@ def extract_top_indications(merged_df, drug_df, indi_df, top_n=10):
         if not missing_cols:
             query_indications_df = pd.merge(drug_df, matching_rows, on=['primaryid', 'caseid', 'drug_seq'], how='inner')
             logger.info(f"\nNumber of reports matching top indications: {query_indications_df.shape[0]}")
-            return query_indications_df
+            return query_indications_df, top_indi_values
     
-    return None
+    return None, None
 
 def run_indications_analysis(data: FAERSData, query_drug, min_age_yrs=0, max_age_yrs=100, top_n=10):
 
@@ -153,12 +160,15 @@ def run_indications_analysis(data: FAERSData, query_drug, min_age_yrs=0, max_age
     # Filter by age
     merged_df = filter_by_age(merged_df, min_age_yrs, max_age_yrs)
     
+    query_indications_df = None
+    top_indi_values = None
     # top indications
     if indi_df is not None:
         print("\n" + "="*50)
         print("TOP INDICATIONS ANALYSIS")
         print("="*50)
-        query_indications_df = extract_top_indications(merged_df, drug_df, indi_df, top_n)
+        query_indications_df, top_indi_values = extract_top_indications(merged_df, drug_df, indi_df, top_n)
     
     print(f"\nFinal dataset shape: {merged_df.shape}")
     print("Analysis complete")
+    return merged_df

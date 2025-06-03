@@ -1,12 +1,9 @@
 # FAERS Surveillance BMI 212
 ### Automated Pipeline for Current Research Methods
 Current research methods follow relatively similar set of steps in order to create 2x2 contingency tables followed up with the application of some of the following statistical tests:
-- RRR (Relative Reporting Ratio)
 - PRR (Proportional Reporting Ratio)
 - ROR (Reporting Odds Ratio)
-- PhiCorr (Phi Coefficient)
 - IC (Information Component)
-- GLASSO (Graphical LASSO)
 - Empirical Bayes Geometric Mean (EBGM) / MGPS
     - This is a more long-term goal since it requires running against all (Drug, SE) pairs
 

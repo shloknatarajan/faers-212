@@ -1,7 +1,8 @@
 from src.data_loader import FAERSData
+from src.meddra_search import pt_filter
+from src.drug_search import filter_by_drug_name
 
-
-class Experiment:
+class FilterExperiment:
     """
     Experiment class to manage a search run. Each experiment instance is a single search run.
     Should take in a preprocessed dataframe with all the tables and do needed filtering
@@ -12,35 +13,26 @@ class Experiment:
     """
 
     def __init__(self, faers_data: FAERSData):
-        self.faers_data = faers_data.copy()
+        self.working_df = faers_data.copy()
         self.contingency_table = None
         self.original_data = None
         self.drug_term = None
         self.ae_term = None
 
-    def set_drug(self, drug_term: str):
-        """
-        Set the drug term for the experiment
-        """
-        self.drug_term = drug_term
 
-    def set_ae(self, ae_term: str):
-        """
-        Set the AE term for the experiment
-        """
-        self.ae_term = ae_term
-
-    def filter_by_drug_name(self):
+    def filter_by_drug_name(self, drug_term: str):
         """
         Filter the working dataframe by the drug name
         """
-        self.working_df = pt_filter(self.faers_data.drug_data, [self.drug_term])
+        self.drug_term = drug_term
+        self.working_df = filter_by_drug_name(self.working_df.drug_data, drug_term)
 
-    def filter_by_preferred_term(self):
+    def filter_by_preferred_term(self, ae_term: str):
         """
         Filter the working dataframe by the preferred term
         """
-        self.working_df = pt_filter(self.working_df, [self.ae_term])
+        self.ae_term = ae_term
+        self.working_df = filter_by_preferred_term(self.working_df, ae_term)
 
     def create_contingency_table(self):
         """

@@ -40,7 +40,7 @@ def filter_by_all_pt_terms(df: pd.DataFrame, terms: List[str]) -> pd.DataFrame:
 
     return df[mask]
 
-def pt_filter(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
+def filter_by_preferred_terms(report: pd.DataFrame, preferred_terms: List[str]) -> pd.DataFrame:
     """
     Filter for MedDRA Preferred Terms in a FAERS report
     """
@@ -65,7 +65,7 @@ def get_system_organ_classes(meddra_terms: List[str]) -> List[str]:
     return [llt_to_soc[term] for term in meddra_terms]
 
 
-def soc_filter(
+def filter_by_soc(
     report: pd.DataFrame, system_organ_classes: List[str]
 ) -> pd.DataFrame:
     """
@@ -84,5 +84,5 @@ if __name__ == "__main__":
     report_quarter = "25Q1"
     preferred_terms = ["Palmar-plantar erythrodysaesthesia syndrome"]
     report = load_report(report_quarter)
-    matching_rows = pt_filter(report, preferred_terms)
+    matching_rows = filter_by_preferred_terms(report, preferred_terms)
     print(matching_rows)

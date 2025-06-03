@@ -1,4 +1,79 @@
-# FAERS Surveillance BMI 212
+# FAERS-212: Automated Pharmacovigilance Pipeline
+
+A comprehensive Python toolkit for analyzing FDA Adverse Event Reporting System (FAERS) data, implementing standardized pharmacovigilance methods for drug safety signal detection.
+
+## Overview
+
+This pipeline automates the standard pharmacovigilance workflow:
+1. **Data Acquisition**: Download and cache FAERS quarterly data
+2. **Preprocessing**: Clean drug names, standardize demographics, map MedDRA terms
+3. **Cohort Generation**: Filter by drugs, adverse events, demographics
+4. **Statistical Analysis**: Compute disproportionality measures (PRR, ROR, IC, EBGM)
+5. **Reporting**: Generate descriptive statistics and visualizations
+
+### Supported Statistical Methods
+- **PRR** (Proportional Reporting Ratio)
+- **ROR** (Reporting Odds Ratio) 
+- **IC** (Information Component)
+- **EBGM** (Empirical Bayes Geometric Mean) with full Bayesian confidence intervals
+
+## Quick Start
+
+### Basic Drug Analysis
+```python
+from src.data_loader import load_faers_data
+from src.report_downloader import download_faers_quarters
+from src.drug_search import run_indications_analysis
+from src.descriptive_stats import describe
+
+# Download and load 2024 data
+faers_data = download_faers_quarters(2024, 2024, 1, 4)
+data = load_faers_data(2024, 1, 2024, 4, save_dir="data")
+
+# Analyze drug indications and demographics
+results = run_indications_analysis(data, "erdafitinib", min_age=0, max_age=100)
+describe(results, 'all_demographics')
+```
+
+### Advanced Statistical Analysis
+```python
+from src.contingency_analysis import analyze_adverse_events
+from src.filters import filter_by
+
+# Filter cohort
+drug_cohort = filter_by(data, drug="erdafitinib", min_age=18, max_age=85)
+
+# Comprehensive adverse event analysis with multiple statistical measures
+results = analyze_adverse_events(
+    data, 
+    query_drug="erdafitinib",
+    preferred_terms=["Nausea", "Fatigue", "Rash"],
+    methods=["prr", "ror", "ebgm", "ic"]
+)
+```
+
+## Core Modules
+
+### Data Management
+- **`data_loader.py`**: Intelligent caching, multi-quarter loading, data merging
+- **`preprocessing.py`**: Drug name standardization, demographic cleaning, MedDRA mapping
+- **`report_downloader.py`**: Automated FAERS data downloading
+
+### Analysis & Filtering  
+- **`drug_search.py`**: Drug-based filtering with flexible name matching
+- **`meddra_search.py`**: MedDRA preferred term and SOC filtering
+- **`filters.py`**: Unified filtering interface
+- **`contingency_analysis.py`**: Complete statistical analysis suite
+- **`descriptive_stats.py`**: Demographic and descriptive analysis
+
+### Research Applications
+This pipeline supports:
+- **Signal Detection**: Automated screening for drug-adverse event associations
+- **Cohort Studies**: Flexible demographic and clinical filtering
+- **Comparative Analysis**: Multi-drug safety profiles
+- **Regulatory Research**: Standardized pharmacovigilance methods
+
+## Legacy Research Methods
 ### Automated Pipeline for Current Research Methods
 Current research methods follow relatively similar set of steps in order to create 2x2 contingency tables followed up with the application of some of the following statistical tests:
 - PRR (Proportional Reporting Ratio)
@@ -44,38 +119,29 @@ Make sure to add the new dependency to the environment.yml file!
 conda env update --file environment.yml --prune
 
 
-##Describe Data Calls
+## Command Line Interface
 
+### Main Pipeline
 ```bash
-# Describe age distribution
-python describe_data.py /path/to/data/ age
+# Run complete drug analysis pipeline
+python main.py erdafitinib --start-year 2024 --start-quarter 1 --end-year 2024 --end-quarter 4
 
-# Describe sex distribution
-python describe_data.py /path/to/data/ sex
-
-# Describe country distribution
-python describe_data.py /path/to/data/ country
-
-# Describe outcome severity
-python describe_data.py /path/to/data/ severity
-
-# Describe reporting delay 
-python describe_data.py /path/to/data/ delay
-
-# Overall dataset description
-python describe_data.py /path/to/data/ overall
+# With age filtering
+python main.py erdafitinib --min-age 18 --max-age 85 --start-year 2024 --start-quarter 1 --end-year 2024 --end-quarter 4
 ```
 
-## Drug Analysis Calls
-
+### Data Description
 ```bash
-# Basic analysis
-python drug_analysis.py /path/to/data/ erdafitinib
+# Describe demographics and distributions
+python drug_analysis.py erdafitinib --describe-demographics
 
-# With age filtering  
-python drug_analysis.py /path/to/data/ erdafitinib --min-age 18 --max-age 85
+# Overall dataset statistics  
+python drug_analysis.py erdafitinib --describe-overall
+```
 
-# With custom top indications count
-python drug_analysis.py /path/to/data/ erdafitinib --top-indications 5
+### Download Data
+```bash
+# Download specific quarters
+python download_data.py --start-year 2024 --start-quarter 1 --end-year 2024 --end-quarter 4
 ```
 

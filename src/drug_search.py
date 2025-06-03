@@ -118,13 +118,13 @@ def extract_top_indications(merged_df, drug_df, indi_df, top_n=10):
     
     return None
 
-def run_drug_analysis(data: FAERSData, query_drug, min_age_yrs=0, max_age_yrs=100, top_n=10):
+def run_indications_analysis(data: FAERSData, query_drug, min_age_yrs=0, max_age_yrs=100, top_n=10):
 
     print(f"Starting analysis for drug: {query_drug}")
     print(f"Age range: {min_age_yrs}-{max_age_yrs} years")
     print("-" * 50)
     
-    # Load required files from directory
+    # Load tables from FAERSData object
     drug_df = data.drug_data
     demo_df = data.demo_data
     outc_df = data.outc_data

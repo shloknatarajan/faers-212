@@ -144,4 +144,14 @@ python drug_analysis.py erdafitinib --describe-overall
 # Download specific quarters
 python download_data.py --start-year 2024 --start-quarter 1 --end-year 2024 --end-quarter 4
 ```
+## Contributors
+
+| Name        | Main Contributions |
+|-------------|-------------------|
+| **Shlock**  | Built download logic, and converted core scripts to the new API. |
+| **Jodie**   | Notebook runs &dash; assisted with preprocessing, drug searches |
+| **Michael** | Notebook runs &dash; assisted with statistical methods and drug search functions |
+| **Ariana**  | Notebook runs &dash; wrote name-mapping steps and descriptive analyses. |
+| **May**     | Wrote the MedDRA mapping script and inital bayesion shriking code. Helped adapt the pipeline to the API interface. |
+
 

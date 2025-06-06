@@ -154,7 +154,8 @@ python download_data.py --start-year 2024 --start-quarter 1 --end-year 2024 --en
 | **Ariana**  | Notebook runs &dash; wrote name-mapping steps and descriptive analyses. |
 | **May**     | Wrote the MedDRA mapping script and inital bayesian shriking code. Helped adapt the pipeline to the API interface. |
 
-Note: Automatic download script from FDA FAERS website was adapted from FAERS-data-toolkit (https://github.com/Judenpech/FAERS-data-toolkit), a github repo written by Judenpech. This enables for most recent FAERS Quarterly Data Extract Files to be automatically downloaded from the FDA website (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html). 
+Note: Automatic download script from FDA FAERS website (faersDownloader.py) was adapted from FAERS-data-toolkit (https://github.com/Judenpech/FAERS-data-toolkit), a github repo written by Judenpech. This enables for most recent FAERS Quarterly Data Extract Files to be automatically downloaded from the FDA website. (https://fis.fda.gov/extensions/FPD-QDE-FAERS/FPD-QDE-FAERS.html). 
+
  
 
 

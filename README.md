@@ -148,10 +148,10 @@ python download_data.py --start-year 2024 --start-quarter 1 --end-year 2024 --en
 
 | Name        | Main Contributions |
 |-------------|-------------------|
-| **Shlock**  | Built download logic, and converted core scripts to the new API. |
+| **Shlock**  | Built out download logic, and converted core scripts to the new API. Wrote out readme and API code structure. |
 | **Jodie**   | Notebook runs &dash; assisted with preprocessing, drug searches |
 | **Michael** | Notebook runs &dash; assisted with statistical methods and drug search functions |
 | **Ariana**  | Notebook runs &dash; wrote name-mapping steps and descriptive analyses. |
-| **May**     | Wrote the MedDRA mapping script and inital bayesion shriking code. Helped adapt the pipeline to the API interface. |
+| **May**     | Wrote the MedDRA mapping script and inital bayesian shriking code. Helped adapt the pipeline to the API interface. |
 
 
